@@ -130,6 +130,8 @@ class PAYDAY2Context(CommonContext):
         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
             print(f"Couldn't load apyday2.txt: {e}")
 
+        ### MESS OF SAVE CHECKING STARTS HERE
+
         try:
             if modSeed != args['slot_data']['seed_name']:
 
@@ -252,6 +254,8 @@ class PAYDAY2Context(CommonContext):
 
         except:
             pass
+
+        ### MESS OF SAVE CHECKING HAS ENDED. THANK GOD
 
         self.scrungle = scrungle(self.path + "apyday2.txt", self)
         scrungle_task = asyncio.create_task(self.scrungle.watch(), name='scrungle')
