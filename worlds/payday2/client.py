@@ -1,6 +1,5 @@
 from CommonClient import CommonContext, ClientCommandProcessor, server_loop, get_base_parser, handle_url_arg, gui_enabled, logger
 import Utils, asyncio, colorama, logging, json, os, math
-from .version import version
 from . import PAYDAY2World
 from . import items
 from .item_types import itemType, itemData
@@ -11,9 +10,9 @@ from NetUtils import ClientStatus
 
 path = "."
 
-def load_json_file(file_name: str) -> dict:
+def load_json_file(fileName: str) -> dict:
     try:
-        with open(file_name, 'r', encoding='utf-8') as file:
+        with open(fileName, 'r', encoding='utf-8') as file:
             return json.load(file)
     except Exception as e:
         return {}
@@ -40,6 +39,11 @@ class scribble:
         with open(self.path, "w+") as f:
             json.dump(self.data, f)
 
+    def writeSeed(self, seed):
+        self.data["seed"] = seed
+        with open(self.path, "w+") as f:
+            json.dump(self.data, f)
+
 # scrungle likes to watch
 class scrungle:
     def __init__(self, path, context):
@@ -49,8 +53,8 @@ class scrungle:
     # function derived from Project Diva APWorld
     async def watch(self):
         print(f"Scrungle is watching {self.path}...")
-        apd2_data = load_json_file(self.path)
-        score = apd2_data["game"]["score"] / 100
+        modSave = load_json_file(self.path)
+        score = modSave["game"]["score"] / 100
         await self.context.check(score)
         lastModTime = os.path.getmtime(self.path) if os.path.isfile(self.path) else 0.0
         try:
@@ -61,11 +65,11 @@ class scrungle:
                     if modTime > lastModTime:
                         lastModTime = modTime
                         try:
-                            apd2_data = load_json_file(self.path)
-                            score = apd2_data["game"]["score"] / 100
+                            modSave = load_json_file(self.path)
+                            score = modSave["game"]["score"] / 100
                             await self.context.check(score)
 
-                            #print(apd2_data)
+                            #print(modSave)
                         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
                             print(f"Couldn't load apyday2.txt: {e}")
         except asyncio.CancelledError:
@@ -94,22 +98,38 @@ class PAYDAY2Context(CommonContext):
             self.on_received_items(args)
 
     def on_connected(self, args: dict):
-        if version != args['slot_data']['version']:
-            logger.error("Server and Client APWorld versions do not match.")
-        else:
-            logger.info(f"Client version {version}")
+        version = PAYDAY2World.world_version.as_simple_string()
+
+        # Error checking
+        if version != args['slot_data']['server_version']:
+            logger.error(f"WARNING: Server ({args['slot_data']['server_version']}) and client ({version}) are using different versions!")
 
         self.path = os.path.dirname(PAYDAY2World.settings.payday2_path) + "/mods/saves/"
 
         if not os.path.isfile(PAYDAY2World.settings.payday2_path):
-            logger.error('Scrungle no find payday2_win32_release.exe - Scrungle kindly requests that you remove path from host.yaml')
+            logger.error('ERROR: Scrungle no find payday2_win32_release.exe - Scrungle kindly requests that you remove path from host.yaml')
+            Utils.async_start(self.disconnect())
 
-        if not os.path.exists(self.path):
-            logger.error('Scrungle no find /mods/saves. Scrungle want you to check that you have SuperBLT installed.')
+        elif not os.path.exists(self.path):
+            logger.error('ERROR: Scrungle no find /mods/saves. Scrungle want you to check that you have SuperBLT installed.')
+            Utils.async_start(self.disconnect())
 
+        # Setup file stuff
         self.scribble = scribble(self.path + "apyday2-client.txt")
         self.scrungle = scrungle(self.path + "apyday2.txt", self)
         scrungle_task = asyncio.create_task(self.scrungle.watch(), name='scrungle')
+
+        # Check seeds
+        try:
+            modSave = load_json_file(self.path + "apyday2.txt")
+            modSeed = modSave["game"]["seed"]
+
+        except KeyError as e:
+            self.scribble.writeSeed(args['slot_data']['seed_name'])
+            print(f"Couldn't find seed, wrote seed to file")
+
+        except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
+            print(f"Couldn't load apyday2.txt: {e}")
 
         self.itemDict = items.itemDict
 
@@ -125,7 +145,7 @@ class PAYDAY2Context(CommonContext):
                 logger.error(f"KEY ERROR: {entry.item}")
                 continue
             except Exception as e:
-                logger.error(f"FATAL KEY ERROR: {entry.item}")
+                logger.error(f"FATAL ERROR: {entry.item}")
                 continue
 
             sender = "You" if entry.player == self.slot else f"Player {entry.player}"
@@ -165,7 +185,7 @@ class PAYDAY2Context(CommonContext):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
-            base_title = "Archipelago " + self.game + " Client"
+            base_title = self.game + " Client"
 
         self.ui = PAYDAY2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
@@ -175,7 +195,6 @@ class ClientInitialise:
     @classmethod
     def initialise(self, context, itemDict):
         scribble = context.scribble
-
 
 def launch_client(*args: Sequence[str]):
     Utils.init_logging('PAYDAY2Client')
@@ -190,7 +209,6 @@ def launch_client(*args: Sequence[str]):
         ctx.run_cli()
 
         await ctx.exit_event.wait()
-        ctx.server_address = None
         await ctx.shutdown()
 
     parser = get_base_parser()

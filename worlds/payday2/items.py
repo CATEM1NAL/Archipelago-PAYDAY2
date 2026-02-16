@@ -42,6 +42,8 @@ fillerCountDict: dict[int, int] = {
     202: 0,
     203: 0,
     204: 0,
+    205: 0,
+    206: 0,
 }
 
 itemDict: dict[int, itemData] = {}

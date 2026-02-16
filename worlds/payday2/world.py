@@ -3,7 +3,6 @@ from typing import Any, ClassVar
 import settings
 
 from worlds.AutoWorld import World
-from .version import version
 
 from . import items, locations
 from . import options as payday2_options
@@ -13,7 +12,7 @@ class PAYDAY2Settings(settings.Group):
         description = "payday2_win32_release.exe (.../steamapps/common/PAYDAY 2)"
         is_exe = True
 
-    payday2_path: PAYDAY2Path = PAYDAY2Path("C:/Program Files (x86)/Steam/steamapps/common/PAYDAY 2")
+    payday2_path: PAYDAY2Path = PAYDAY2Path("C:/Program Files (x86)/Steam/steamapps/common/PAYDAY 2/payday2_win32_release.exe")
 
 class PAYDAY2World(World):
     """
@@ -29,7 +28,6 @@ class PAYDAY2World(World):
 
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
-
 
     origin_region_name = "Crime.net"
 
@@ -52,6 +50,7 @@ class PAYDAY2World(World):
         args = self.options.as_dict(
             "bot_count"
         )
-        args["version"] = version
+        args["server_version"] = self.world_version.as_simple_string()
+        args["seed_name"] = str(self.multiworld.seed_name)
 
         return args
