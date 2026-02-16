@@ -176,6 +176,8 @@ class PAYDAY2Context(CommonContext):
 
                     if saveCount == 1:
                         if os.path.isdir(paydaySaves + saveDir + "apyday2_backups"):
+                            fileFound = True
+
                             for file in os.listdir(paydaySaves + saveDir + "apyday2_backups"):
                                 if file == args['slot_data']['seed_name']:
                                     print("Found previous save data, restoring")
@@ -184,11 +186,13 @@ class PAYDAY2Context(CommonContext):
                                     shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
                                     shutil.copy(paydaySaves + saveDir + "apyday2_backups/" + args['slot_data']['seed_name'], paydaySaves + saveDir + "save041.sav")
                                     break
-
                                 else:
-                                    print("No existing save found. Backing up")
-                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
-                                    os.remove(paydaySaves + saveDir + "save041.sav")
+                                    fileFound = False
+
+                            if not fileFound or len(os.listdir(paydaySaves + saveDir + "apyday2_backups")) == 0:
+                                print("No existing save found. Backing up")
+                                shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
+                                os.remove(paydaySaves + saveDir + "save041.sav")
 
                         else:
                             os.mkdir(paydaySaves + saveDir + "apyday2_backups")
@@ -202,6 +206,8 @@ class PAYDAY2Context(CommonContext):
                     if saveCount == 1:
                         # apyday2.txt handler
                         if os.path.isdir(self.path + "/apyday2_backups"):
+                            fileFound = True
+
                             for file in os.listdir(self.path + "/apyday2_backups"):
                                 if file == args['slot_data']['seed_name']:
                                     print("Found previous save data, restoring")
@@ -215,14 +221,16 @@ class PAYDAY2Context(CommonContext):
                                                 "Remember to clean them out from time to time!")
                                     break
                                 else:
-                                    print("No existing save found. Backing up")
-                                    shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
-                                    os.remove(self.path + "apyday2.txt")
-                                    logger.info("Backed up previous save data for future sessions.\n"
-                                                "Saves were moved to the following folders:\n"
-                                                ".../PAYDAY 2/mods/saves/apyday2_backups\n"
-                                                f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
-                                                "Remember to clean them out from time to time!")
+                                    fileFound = False
+                            if not fileFound or len(os.listdir(self.path + "/apyday2_backups")) == 0:
+                                print("No existing save found. Backing up")
+                                shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
+                                os.remove(self.path + "apyday2.txt")
+                                logger.info("Backed up previous save data for future sessions.\n"
+                                            "Saves were moved to the following folders:\n"
+                                            ".../PAYDAY 2/mods/saves/apyday2_backups\n"
+                                            f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
+                                            "Remember to clean them out from time to time!")
 
                         else:
                             os.mkdir(self.path + "/apyday2_backups")
