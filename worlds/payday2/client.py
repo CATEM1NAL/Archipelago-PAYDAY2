@@ -146,7 +146,6 @@ class PAYDAY2Context(CommonContext):
                                 if os.path.isdir(os.path.join(paydaySaves, folder))]
 
                     saveCount = 0
-                    saveDir = "nil"
                     for folder in steamIds:
                         if "save041.sav" in os.listdir(paydaySaves + folder):
                             saveCount += 1
@@ -161,7 +160,6 @@ class PAYDAY2Context(CommonContext):
                                        "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
                                        "5) Click 'YES' and wait for the game to reload.\n"
                                        "You can reconnect after the game reloads.")
-                                abortFix = True
                                 Utils.async_start(self.disconnect())
                                 break
 
@@ -174,36 +172,34 @@ class PAYDAY2Context(CommonContext):
                                    "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
                                    "5) Click 'YES' and wait for the game to reload.\n"
                                    "You can reconnect after the game reloads.")
-                            abortFix = True
                             Utils.async_start(self.disconnect())
 
-                    print(saveDir)
-                    if saveDir != "nil":
-                        if os.path.isdir(paydaySaves + saveDir + "/apyday2_backups"):
-                            for file in os.listdir(paydaySaves + saveDir + "/apyday2_backups"):
+                    if saveCount == 1:
+                        if os.path.isdir(paydaySaves + saveDir + "apyday2_backups"):
+                            for file in os.listdir(paydaySaves + saveDir + "apyday2_backups"):
                                 if file == args['slot_data']['seed_name']:
                                     print("Found previous save data, restoring")
 
                                     # Copy current save to backup folder, copy old save back to continue playing
-                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "/apyday2_backups/" + modSeed)
-                                    shutil.copy(paydaySaves + saveDir + "/apyday2_backups/" + args['slot_data']['seed_name'], paydaySaves + saveDir + "save041.sav")
+                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
+                                    shutil.copy(paydaySaves + saveDir + "apyday2_backups/" + args['slot_data']['seed_name'], paydaySaves + saveDir + "save041.sav")
                                     break
 
                                 else:
                                     print("No existing save found. Backing up")
-                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "/apyday2_backups/" + modSeed)
+                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
                                     os.remove(paydaySaves + saveDir + "save041.sav")
 
                         else:
-                            os.mkdir(paydaySaves + saveDir + "/apyday2_backups")
+                            os.mkdir(paydaySaves + saveDir + "apyday2_backups")
                             print("Created backup save folder.")
 
                             # Copy save to backup folder, using the seed as the file name
-                            shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "/apyday2_backups/" + modSeed)
+                            shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
                             os.remove(paydaySaves + saveDir + "save041.sav")
 
 
-                    if abortFix == False:
+                    if saveCount == 1:
                         # apyday2.txt handler
                         if os.path.isdir(self.path + "/apyday2_backups"):
                             for file in os.listdir(self.path + "/apyday2_backups"):
