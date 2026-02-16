@@ -1,5 +1,5 @@
 from CommonClient import CommonContext, ClientCommandProcessor, server_loop, get_base_parser, handle_url_arg, gui_enabled, logger
-import Utils, asyncio, colorama, logging, json, os, math
+import Utils, asyncio, colorama, logging, json, os, math, shutil
 from . import PAYDAY2World
 from . import items
 from .item_types import itemType, itemData
@@ -54,8 +54,11 @@ class scrungle:
     async def watch(self):
         print(f"Scrungle is watching {self.path}...")
         modSave = load_json_file(self.path)
-        score = modSave["game"]["score"] / 100
-        await self.context.check(score)
+        try:
+            score = modSave["game"]["score"] / 100
+            await self.context.check(score)
+        except:
+            pass
         lastModTime = os.path.getmtime(self.path) if os.path.isfile(self.path) else 0.0
         try:
             while True:
@@ -102,9 +105,10 @@ class PAYDAY2Context(CommonContext):
 
         # Error checking
         if version != args['slot_data']['server_version']:
-            logger.error(f"WARNING: Server ({args['slot_data']['server_version']}) and client ({version}) are using different versions!")
+            logger.info(f"WARNING: Server ({args['slot_data']['server_version']}) and client ({version}) are using different versions!")
 
         self.path = os.path.dirname(PAYDAY2World.settings.payday2_path) + "/mods/saves/"
+        self.scribble = scribble(self.path + "apyday2-client.txt")
 
         if not os.path.isfile(PAYDAY2World.settings.payday2_path):
             logger.error('ERROR: Scrungle no find payday2_win32_release.exe - Scrungle kindly requests that you remove path from host.yaml')
@@ -114,12 +118,7 @@ class PAYDAY2Context(CommonContext):
             logger.error('ERROR: Scrungle no find /mods/saves. Scrungle want you to check that you have SuperBLT installed.')
             Utils.async_start(self.disconnect())
 
-        # Setup file stuff
-        self.scribble = scribble(self.path + "apyday2-client.txt")
-        self.scrungle = scrungle(self.path + "apyday2.txt", self)
-        scrungle_task = asyncio.create_task(self.scrungle.watch(), name='scrungle')
-
-        # Check seeds
+        # Check seed
         try:
             modSave = load_json_file(self.path + "apyday2.txt")
             modSeed = modSave["game"]["seed"]
@@ -131,9 +130,133 @@ class PAYDAY2Context(CommonContext):
         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
             print(f"Couldn't load apyday2.txt: {e}")
 
-        self.itemDict = items.itemDict
+        try:
+            if modSeed != args['slot_data']['seed_name']:
 
-        ClientInitialise.initialise(self, self.itemDict)
+                # Check operating system, if Windows we can handle different saves ourselves
+                if os.name == "nt":
+                    print("Seed mismatch! Fixing...")
+                    abortFix = False
+
+                    # Game save handler
+                    paydaySaves = (os.getenv("LOCALAPPDATA").replace("\\", "/") + "/PAYDAY 2/saves/")
+                    steamIds = [folder for folder in os.listdir(paydaySaves)
+                                if os.path.isdir(os.path.join(paydaySaves, folder))]
+
+                    saveCount = 0
+                    saveDir = "nil"
+                    for folder in steamIds:
+                        if "save041.sav" in os.listdir(paydaySaves + folder):
+                            saveCount += 1
+                            saveDir = folder + "/"
+
+                            if saveCount > 1:
+                                logger.error("ERROR: Too much uncertainty to restore previous save.\n"
+                                       "Reset your save manually with the following steps:\n"
+                                       "1) Launch PAYDAY 2.\n"
+                                       "2) Click 'OPTIONS'.\n"
+                                       "3) Click 'ADVANCED'.\n"
+                                       "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
+                                       "5) Click 'YES' and wait for the game to reload.\n"
+                                       "You can reconnect after the game reloads.")
+                                abortFix = True
+                                Utils.async_start(self.disconnect())
+                                break
+
+                        else:
+                            logger.error("ERROR: No game save found to resume from.\n"
+                                   "Reset your save manually with the following steps:\n"
+                                   "1) Launch PAYDAY 2.\n"
+                                   "2) Click 'OPTIONS'.\n"
+                                   "3) Click 'ADVANCED'.\n"
+                                   "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
+                                   "5) Click 'YES' and wait for the game to reload.\n"
+                                   "You can reconnect after the game reloads.")
+                            abortFix = True
+                            Utils.async_start(self.disconnect())
+
+                    print(saveDir)
+                    if saveDir != "nil":
+                        if os.path.isdir(paydaySaves + saveDir + "/apyday2_backups"):
+                            for file in os.listdir(paydaySaves + saveDir + "/apyday2_backups"):
+                                if file == args['slot_data']['seed_name']:
+                                    print("Found previous save data, restoring")
+
+                                    # Copy current save to backup folder, copy old save back to continue playing
+                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "/apyday2_backups/" + modSeed)
+                                    shutil.copy(paydaySaves + saveDir + "/apyday2_backups/" + args['slot_data']['seed_name'], paydaySaves + saveDir + "save041.sav")
+                                    break
+
+                                else:
+                                    print("No existing save found. Backing up")
+                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "/apyday2_backups/" + modSeed)
+                                    os.remove(paydaySaves + saveDir + "save041.sav")
+
+                        else:
+                            os.mkdir(paydaySaves + saveDir + "/apyday2_backups")
+                            print("Created backup save folder.")
+
+                            # Copy save to backup folder, using the seed as the file name
+                            shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "/apyday2_backups/" + modSeed)
+                            os.remove(paydaySaves + saveDir + "save041.sav")
+
+
+                    if abortFix == False:
+                        # apyday2.txt handler
+                        if os.path.isdir(self.path + "/apyday2_backups"):
+                            for file in os.listdir(self.path + "/apyday2_backups"):
+                                if file == args['slot_data']['seed_name']:
+                                    print("Found previous save data, restoring")
+                                    # Copy current save to backup folder, copy old save back to continue playing
+                                    shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
+                                    shutil.copy(self.path + "/apyday2_backups/" + args['slot_data']['seed_name'], self.path + "apyday2.txt")
+                                    logger.info("Found and restored previous save.\n"
+                                                "Old saves are in the following folders:\n"
+                                                ".../PAYDAY 2/mods/saves/apyday2_backups\n"
+                                                f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
+                                                "Remember to clean them out from time to time!")
+                                    break
+                                else:
+                                    print("No existing save found. Backing up")
+                                    shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
+                                    os.remove(self.path + "apyday2.txt")
+                                    logger.info("Backed up previous save data for future sessions.\n"
+                                                "Saves were moved to the following folders:\n"
+                                                ".../PAYDAY 2/mods/saves/apyday2_backups\n"
+                                                f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
+                                                "Remember to clean them out from time to time!")
+
+                        else:
+                            os.mkdir(self.path + "/apyday2_backups")
+                            print("Created backup save folder.")
+                            # Copy save to backup folder, using the seed as the file name
+                            shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
+                            os.remove(self.path + "apyday2.txt")
+                            logger.info("Backed up previous save data for future sessions.\n"
+                                        "Saves were moved to the following folders:\n"
+                                        ".../PAYDAY 2/mods/saves/apyday2_backups\n"
+                                        f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
+                                        "Remember to clean them out from time to time!")
+
+                # System isn't Windows, don't attempt anything
+                else:
+                    logger.error("ERROR: Your current save was made on a different seed.\n"
+                                 "Delete your save with the following steps:\n"
+                                 "1) Launch PAYDAY 2.\n"
+                                 "2) Click 'OPTIONS'.\n"
+                                 "3) Click 'ADVANCED'.\n"
+                                 "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
+                                 "5) Click 'YES' and wait for the game to reload.\n"
+                                 "You can reconnect after the game reloads.")
+                    Utils.async_start(self.disconnect())
+
+        except:
+            pass
+
+        self.scrungle = scrungle(self.path + "apyday2.txt", self)
+        scrungle_task = asyncio.create_task(self.scrungle.watch(), name='scrungle')
+
+        self.itemDict = items.itemDict
 
     def on_received_items(self, args: dict):
         # for entry in self.items_received:
@@ -147,9 +270,6 @@ class PAYDAY2Context(CommonContext):
             except Exception as e:
                 logger.error(f"FATAL ERROR: {entry.item}")
                 continue
-
-            sender = "You" if entry.player == self.slot else f"Player {entry.player}"
-            # logger.info(f"From: {sender} | Item: {item.name}")
 
             self.scribble.run(item.name)
 
@@ -189,12 +309,6 @@ class PAYDAY2Context(CommonContext):
 
         self.ui = PAYDAY2Manager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
-
-class ClientInitialise:
-
-    @classmethod
-    def initialise(self, context, itemDict):
-        scribble = context.scribble
 
 def launch_client(*args: Sequence[str]):
     Utils.init_logging('PAYDAY2Client')
