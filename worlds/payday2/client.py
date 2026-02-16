@@ -281,10 +281,6 @@ class PAYDAY2Context(CommonContext):
 
             self.scribble.run(item.name)
 
-            if item.type == itemType.progression:
-                pass
-                #Remove pass and edit the correct line in your json
-
     def getN(self, score):
         return math.floor((math.sqrt(1 + 8 * (score)) - 1) / 2)
 
