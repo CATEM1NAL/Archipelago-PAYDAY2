@@ -1,7 +1,6 @@
 from collections.abc import Mapping
 from typing import Any, ClassVar
 import settings
-from rule_builder.cached_world import CachedRuleBuilderWorld
 
 from worlds.AutoWorld import World
 
