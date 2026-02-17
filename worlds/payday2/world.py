@@ -1,6 +1,7 @@
 from collections.abc import Mapping
 from typing import Any, ClassVar
 import settings
+from rule_builder.cached_world import CachedRuleBuilderWorld
 
 from worlds.AutoWorld import World
 
@@ -19,7 +20,6 @@ class PAYDAY2World(World):
     PAYDAY 2 is a shooty bang bang game.
     """
     game = "PAYDAY 2"
-
     topology_present = False
 
     options_dataclass = payday2_options.PAYDAY2Options

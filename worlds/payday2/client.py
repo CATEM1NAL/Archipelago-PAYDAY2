@@ -1,4 +1,4 @@
-from CommonClient import CommonContext, ClientCommandProcessor, server_loop, get_base_parser, handle_url_arg, gui_enabled, logger
+from CommonClient import CommonContext, ClientCommandProcessor, server_loop, get_base_parser, handle_url_arg, logger
 import Utils, asyncio, colorama, logging, json, os, math, shutil
 from . import PAYDAY2World
 from . import items
@@ -111,11 +111,11 @@ class PAYDAY2Context(CommonContext):
         self.scribble = scribble(self.path + "apyday2-client.txt")
 
         if not os.path.isfile(PAYDAY2World.settings.payday2_path):
-            logger.error('ERROR: Scrungle no find payday2_win32_release.exe - Scrungle kindly requests that you remove path from host.yaml')
+            logger.error('ERROR: Scrungle no find payday2_win32_release.exe.\nScrungle kindly requests that you remove payday2_path from host.yaml')
             Utils.async_start(self.disconnect())
 
         elif not os.path.exists(self.path):
-            logger.error('ERROR: Scrungle no find /mods/saves. Scrungle want you to check that you have SuperBLT installed.')
+            logger.error('ERROR: Scrungle no find /mods/saves.\nScrungle want you to check that you have SuperBLT installed.')
             Utils.async_start(self.disconnect())
 
         # Check seed
@@ -136,7 +136,7 @@ class PAYDAY2Context(CommonContext):
             if modSeed != args['slot_data']['seed_name']:
 
                 # Check operating system, if Windows we can handle different saves ourselves
-                if os.name == "nt":
+                if os.name == "--nt": # DOESN'T ACTUALLY WORK SO I DISABLED IT
                     print("Seed mismatch! Fixing...")
                     abortFix = False
 
@@ -247,12 +247,13 @@ class PAYDAY2Context(CommonContext):
                 # System isn't Windows, don't attempt anything
                 else:
                     logger.error("ERROR: Your current save was made on a different seed.\n"
+                                 "Only one multiworld can currently be played at a time.\n\n"
                                  "Delete your save with the following steps:\n"
                                  "1) Launch PAYDAY 2.\n"
                                  "2) Click 'OPTIONS'.\n"
                                  "3) Click 'ADVANCED'.\n"
                                  "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
-                                 "5) Click 'YES' and wait for the game to reload.\n"
+                                 "5) Click 'YES' and wait for the game to reload.\n\n"
                                  "You can reconnect after the game reloads.")
                     Utils.async_start(self.disconnect())
 
@@ -322,7 +323,7 @@ def launch_client(*args: Sequence[str]):
         ctx = PAYDAY2Context(args.connect, args.password)
         ctx.server_task = asyncio.create_task(server_loop(ctx), name='ServerLoop')
 
-        if gui_enabled:
+        if Utils.gui_enabled:
             ctx.run_gui()
         ctx.run_cli()
 
