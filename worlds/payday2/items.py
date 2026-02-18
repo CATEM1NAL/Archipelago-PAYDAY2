@@ -13,15 +13,15 @@ progressionItemDict: dict[int, itemData] = {
     1: itemData(IC.progression | IC.useful, 5, "Extra Time", itemType.progression),
     2: itemData(IC.progression, 2, "Drill Speed", itemType.progression),
     3: itemData(IC.progression, 21, "Extra Bot", itemType.progression),
-    4: itemData(IC.progression, 1, "First Saw", itemType.progression),
+    4: itemData(IC.progression, 1, "Saw", itemType.progression),
     5: itemData(IC.progression, 1, "ECM", itemType.progression),
     6: itemData(IC.progression, 1, "Trip Mines", itemType.progression),
     7: itemData(IC.progression_skip_balancing, 35, "24 Coins", itemType.progression),
 }
 
 trapItemDict: dict[int, itemData] = {
-    100: itemData(IC.trap | IC.useful, 5, "Difficulty Increase", itemType.trap),
-    101: itemData(IC.trap | IC.useful, 5, "Additional Mutator", itemType.trap),
+    100: itemData(IC.trap, 5, "Difficulty Increase", itemType.trap),
+    101: itemData(IC.trap, 5, "Additional Mutator", itemType.trap),
     102: itemData(IC.trap, 1, "One Down", itemType.trap),
 }
 
