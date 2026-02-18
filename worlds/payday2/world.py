@@ -19,7 +19,7 @@ class PAYDAY2World(World):
     PAYDAY 2 is a shooty bang bang game.
     """
     game = "PAYDAY 2"
-    topology_present = False
+    topology_present = True
 
     options_dataclass = payday2_options.PAYDAY2Options
     options: payday2_options.PAYDAY2Options

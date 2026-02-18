@@ -16,7 +16,7 @@ progressionItemDict: dict[int, itemData] = {
     4: itemData(IC.progression, 1, "Saw", itemType.progression),
     5: itemData(IC.progression, 1, "ECM", itemType.progression),
     6: itemData(IC.progression, 1, "Trip Mines", itemType.progression),
-    7: itemData(IC.progression_skip_balancing, 35, "24 Coins", itemType.progression),
+    7: itemData(IC.progression_deprioritized_skip_balancing, 35, "24 Coins", itemType.progression),
 }
 
 trapItemDict: dict[int, itemData] = {

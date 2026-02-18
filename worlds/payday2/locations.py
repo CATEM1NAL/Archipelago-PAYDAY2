@@ -1,5 +1,5 @@
 from __future__ import annotations
-from rule_builder.rules import Has, HasAll, Rule
+from rule_builder.rules import Has, HasAll, Rule, HasAllCounts
 
 from typing import TYPE_CHECKING
 from BaseClasses import ItemClassification, Location, Region
@@ -14,10 +14,10 @@ LOCATIONCOUNT = 100
 LOCATION_NAME_TO_ID = { f"{triangle(i)} Crime Points" : i for i in range(1, LOCATIONCOUNT+1) }
 
 safehouseRooms = ["Scarface's Room", "Dallas' Office", "Hoxton's Files", "Clover's Surveillance Center",
-                      "Duke's Gallery", "Houston's Workshop", "Sydney's Studio", "Rust's Corner", "Joy's Van",
-                      "h3h3", "Bonnie's Gambling Den", "Jiro's Lounge", "Common Rooms", "Jimmy's Bar",
-                      "Sangres' Cave", "Chains' Weapons Workshop", "Bodhi's Surfboard Workshop", "Jacket's Hangout",
-                      "Sokol's Hockey Gym", "Dragan's Gym", "Vault", "Wolf's Workshop", "Wick's Shooting Range"]
+                "Duke's Gallery", "Houston's Workshop", "Sydney's Studio", "Rust's Corner", "Joy's Van",
+                    "h3h3", "Bonnie's Gambling Den", "Jiro's Lounge", "Common Rooms", "Jimmy's Bar",
+                "Sangres' Cave", "Chains' Weapons Workshop", "Bodhi's Surfboard Workshop", "Jacket's Hangout",
+                "Sokol's Hockey Gym", "Dragan's Gym", "Vault", "Wolf's Workshop", "Wick's Shooting Range"]
 
 LOCATION_NAME_TO_ID.update({f"{room} - Tier 2": key+LOCATIONCOUNT+1 for key, room in enumerate(safehouseRooms)})
 LOCATION_NAME_TO_ID.update({f"{room} - Tier 3": key+LOCATIONCOUNT+1+len(safehouseRooms) for key, room in enumerate(safehouseRooms)})
@@ -31,8 +31,10 @@ def create_and_connect_regions(world: PAYDAY2World) -> None:
     world.multiworld.regions.append(Region("Safe House Tier 3", world.player, world.multiworld))
 
     crimenet = world.get_region("Crime.net")
-    crimenet.connect(world.get_region("Safe House Tier 2"), "276 Coins", lambda state: state.has("24 Coins", world.player, 12))
-    crimenet.connect(world.get_region("Safe House Tier 3"), "828 Coins", lambda state: state.has("24 Coins", world.player, 35))
+    safehouseT2 = world.get_region("Safe House Tier 2")
+    safehouseT3 = world.get_region("Safe House Tier 3")
+    world.create_entrance(crimenet, safehouseT2, HasAllCounts({"24 Coins": 12, "Extra Time": 2}), "276 Coins")
+    world.create_entrance(crimenet, safehouseT3, HasAllCounts({"24 Coins": 35, "Extra Time": 4}), "828 Coins")
 
 def create_all_locations(world: PAYDAY2World) -> None:
     create_score_locations(world)
@@ -76,4 +78,4 @@ def create_score_locations(world: PAYDAY2World) -> None:
     victory = items.PAYDAY2Item("Victory", ItemClassification.progression, None, world.player)
     location.place_locked_item(victory)
 
-    world.multiworld.completion_condition[world.player] = lambda state: state.has("Victory", world.player)
+    world.set_completion_rule(Has("Victory"))
