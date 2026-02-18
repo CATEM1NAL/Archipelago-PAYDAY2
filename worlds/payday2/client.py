@@ -4,6 +4,7 @@ from . import PAYDAY2World
 from . import items
 from .item_types import itemType, itemData
 from collections.abc import Sequence
+from .locations import LOCATION_NAME_TO_ID
 
 from BaseClasses import ItemClassification as IC
 from NetUtils import ClientStatus
@@ -20,7 +21,7 @@ def load_json_file(fileName: str) -> dict:
 class PAYDAY2CommandProcessor(ClientCommandProcessor):
 
     def _score(self):
-        """Prints a countdown."""
+        """Displays your current score."""
         if isinstance(self.ctx, PAYDAY2Context):
             logger.info(f"Current score: {1}")
 
@@ -54,27 +55,46 @@ class scrungle:
     async def watch(self):
         print(f"Scrungle is watching {self.path}...")
         modSave = load_json_file(self.path)
-        try:
-            score = modSave["game"]["score"] / 100
-            await self.context.check(score)
-        except:
-            pass
+        prevScore = 0
         lastModTime = os.path.getmtime(self.path) if os.path.isfile(self.path) else 0.0
+        lastModTime = 0
+
         try:
             while True:
-                await asyncio.sleep(1)
                 if os.path.isfile(self.path):
                     modTime = os.path.getmtime(self.path)
+
                     if modTime > lastModTime:
                         lastModTime = modTime
+
                         try:
                             modSave = load_json_file(self.path)
                             score = modSave["game"]["score"] / 100
-                            await self.context.check(score)
 
-                            #print(modSave)
+                            # Has the game been won?
+                            try:
+                                modSave["game"]["victory"]
+                                await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
+                            except:
+                                pass
+
+                            # Not in the except so people that play without autorelease can continue getting checks
+                            if score > prevScore:
+                                await self.context.score_check(score)
+                                prevScore = score
+
                         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
                             print(f"Couldn't load apyday2.txt: {e}")
+
+                        try:
+                            safehouseDict = modSave["safehouse"]
+                            if safehouseDict != []:
+                                await self.context.safehouse_check(safehouseDict)
+                        except Exception as e:
+                            print(f"Couldn't load apyday2.txt: {e}")
+
+                await asyncio.sleep(1)
+
         except asyncio.CancelledError:
             print("Scrungle stopped watching. Scrungle bored.")
 
@@ -125,7 +145,7 @@ class PAYDAY2Context(CommonContext):
 
         except KeyError as e:
             self.scribble.writeSeed(args['slot_data']['seed_name'])
-            print(f"Couldn't find seed, wrote seed to file")
+            print(f"Couldn't find seed, wrote to client file")
 
         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
             print(f"Couldn't load apyday2.txt: {e}")
@@ -285,21 +305,53 @@ class PAYDAY2Context(CommonContext):
     def getN(self, score):
         return math.floor((math.sqrt(1 + 8 * (score)) - 1) / 2)
 
-    async def check(self, score):
+    async def score_check(self, score):
         try:
             #Solve your triangular number every time because you refuse to just save and read n.
             print(score)
-            n = self.getN(score) #This needs to be the solving part, fuck you.
+            n = self.getN(score)
             print(n)
             for i in range(1, n + 1):
-                #triangle = n * (n+1) / 2 #Because you refuse to save locations as n, we now need to make triangular numbers again, right after solving one.
                 await self.check_locations([i])
 
             self.score = score
-
-            #This line is for victory
-            #await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
                 
+        except KeyError as e:
+            logger.error(e)
+
+    async def safehouse_check(self, safehouseDict):
+        try:
+            safehouseIdToName = {
+                "terry": "Scarface's Room",
+                "russian": "Dallas' Office",
+                "old_hoxton": "Hoxton's Files",
+                "clover": "Clover's Surveillance Center",
+                "myh": "Duke's Gallery",
+                "sydney": "Sydney's Studio",
+                "american": "Houston's Workshop",
+                "wild": "Rust's Corner",
+                "ecp": "h3h3",
+                "joy": "Joy's Van",
+                "bonnie": "Bonnie's Gambling Den",
+                "dragon": "Jiro's Lounge",
+                "dragan": "Dragan's Gym",
+                "jimmy": "Jimmy's Bar",
+                "livingroom": "Common Rooms",
+                "max": "Sangres' Cave",
+                "spanish": "Chains' Weapons Workshop",
+                "bodhi": "Bodhi's Surfboard Workshop",
+                "jacket": "Jacket's Hangout",
+                "sokol": "Sokol's Hockey Gym",
+                "vault": "Vault",
+                "german": "Wolf's Workshop",
+                "jowi": "Wick's Shooting Range"
+            }
+
+            for key, tier in safehouseDict.items():
+                for i in range(2,tier+1):
+                    Id = LOCATION_NAME_TO_ID[f"{safehouseIdToName[key]} - Tier {i}"]
+                    await self.check_locations([Id])
+
         except KeyError as e:
             logger.error(e)
 
