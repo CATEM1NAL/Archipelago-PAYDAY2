@@ -61,7 +61,21 @@ class PAYDAY2Item(Item):
     game = "PAYDAY 2"
 
 def update_items(world: PAYDAY2World) -> None:
+    progressionItemDict[1] = itemData(IC.progression, world.options.time_upgrades, "Extra Time", itemType.progression)
     progressionItemDict[3] = itemData(IC.progression, world.options.bot_count, "Extra Bot", itemType.progression)
+
+    trapItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * (world.options.final_difficulty - world.options.starting_difficulty), "Difficulty Increase", itemType.trap)
+    trapItemDict[101] = itemData(IC.trap, world.options.mutator_traps, "Additional Mutator", itemType.trap)
+    if world.options.one_down != 1:
+        trapItemDict[102] = itemData(IC.trap, 0, "One Down", itemType.trap)
+
+    fillerItemDict[200] = itemData(IC.useful, world.options.max_primary_weapons, "Primary Weapon", itemType.weapon)
+    fillerItemDict[201] = itemData(IC.useful, world.options.max_secondary_weapons, "Secondary Weapon", itemType.weapon)
+    fillerItemDict[202] = itemData(IC.filler, world.options.max_melee_weapons, "Melee Weapon", itemType.weapon)
+    fillerItemDict[203] = itemData(IC.filler, world.options.max_throwables, "Throwable", itemType.weapon)
+    fillerItemDict[204] = itemData(IC.filler, world.options.second_saw, "Second Saw", itemType.progression)
+    fillerItemDict[205] = itemData(IC.useful, world.options.armor_unlocks, "Armor", itemType.unlock)
+    fillerItemDict[206] = itemData(IC.useful, world.options.deployable_unlocks, "Deployable", itemType.unlock)
 
 def get_random_filler_item_name(world: PAYDAY2World) -> str:
     item = world.random.choice(tuple(fillerItemDict.values()))
@@ -91,3 +105,7 @@ def create_all_items(world: PAYDAY2World) -> None:
     itemPool += [world.create_filler() for _ in range(fillerCount)]
 
     world.multiworld.itempool += itemPool
+
+    if world.options.starting_difficulty > 0:
+        for i in range(world.options.starting_difficulty):
+            world.push_precollected("Difficulty Increase")

@@ -19,7 +19,7 @@ class PAYDAY2World(World):
     PAYDAY 2 is a shooty bang bang game.
     """
     game = "PAYDAY 2"
-    topology_present = True
+    topology_present = False
 
     options_dataclass = payday2_options.PAYDAY2Options
     options: payday2_options.PAYDAY2Options
@@ -47,7 +47,10 @@ class PAYDAY2World(World):
 
     def fill_slot_data(self) -> Mapping[str, Any]:
         args = self.options.as_dict(
-            "bot_count"
+            "starting_time",
+            "extra_time",
+            "final_difficulty",
+            "excluded_heists"
         )
         args["server_version"] = self.world_version.as_simple_string()
         args["seed_name"] = str(self.multiworld.seed_name)

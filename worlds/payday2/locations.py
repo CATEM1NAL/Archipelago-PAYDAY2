@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 def triangle(n: int) -> int:
     return n * (n + 1) // 2
-LOCATIONCOUNT = 100
-LOCATION_NAME_TO_ID = { f"{triangle(i)} Crime Points" : i for i in range(1, LOCATIONCOUNT+1) }
+
+LOCATION_NAME_TO_ID = { f"{triangle(i)} Crime Points" : i for i in range(1, 1000+1) }
 
 safehouseRooms = ["Scarface's Room", "Dallas' Office", "Hoxton's Files", "Clover's Surveillance Center",
                 "Duke's Gallery", "Houston's Workshop", "Sydney's Studio", "Rust's Corner", "Joy's Van",
@@ -19,8 +19,8 @@ safehouseRooms = ["Scarface's Room", "Dallas' Office", "Hoxton's Files", "Clover
                 "Sangres' Cave", "Chains' Weapons Workshop", "Bodhi's Surfboard Workshop", "Jacket's Hangout",
                 "Sokol's Hockey Gym", "Dragan's Gym", "Vault", "Wolf's Workshop", "Wick's Shooting Range"]
 
-LOCATION_NAME_TO_ID.update({f"{room} - Tier 2": key+LOCATIONCOUNT+1 for key, room in enumerate(safehouseRooms)})
-LOCATION_NAME_TO_ID.update({f"{room} - Tier 3": key+LOCATIONCOUNT+1+len(safehouseRooms) for key, room in enumerate(safehouseRooms)})
+LOCATION_NAME_TO_ID.update({f"{room} - Tier 2": key+1000+1 for key, room in enumerate(safehouseRooms)})
+LOCATION_NAME_TO_ID.update({f"{room} - Tier 3": key+1000+1+len(safehouseRooms) for key, room in enumerate(safehouseRooms)})
 
 class PAYDAY2Location(Location):
     game = "PAYDAY 2"
@@ -41,6 +41,8 @@ def create_all_locations(world: PAYDAY2World) -> None:
 
 def create_score_locations(world: PAYDAY2World) -> None:
     # Create regions, assign a location to each region, chain entrances together
+    itemsForGoal = (60 - world.options.starting_time) / world.options.extra_time
+
     for i in range(2,4):
         safehouse = world.get_region(f"Safe House Tier {i}")
         for room in safehouseRooms:
@@ -50,7 +52,7 @@ def create_score_locations(world: PAYDAY2World) -> None:
             safehouse.locations.append(location)
 
     crimenet = world.get_region("Crime.net")
-    for i in range(1, LOCATIONCOUNT+1):
+    for i in range(1, world.options.score_checks+1):
         locName = f"{triangle(i)} Crime Points"
         locId = world.location_name_to_id[locName]
 
@@ -62,8 +64,8 @@ def create_score_locations(world: PAYDAY2World) -> None:
 
         if i == 1:
             crimenet.connect(region, "Start run")
-        elif i > (LOCATIONCOUNT / 5):
-            world.set_rule(location, Has("Extra Time", i // (LOCATIONCOUNT / 6)))
+        elif i > (world.options.score_checks / itemsForGoal):
+            world.set_rule(location, Has("Extra Time", i // (world.options.score_checks / itemsForGoal)))
         if i > 1:
             prevRegion.connect(region, f"{i} points")
         prevRegion = region
@@ -71,7 +73,7 @@ def create_score_locations(world: PAYDAY2World) -> None:
     locName = "Final Heist Completed"
     region = Region(locName, world.player, world.multiworld)
     location = PAYDAY2Location(world.player, locName, None, region)
-    world.set_rule(location, Has("Extra Time", 5))
+    world.set_rule(location, Has("Extra Time", itemsForGoal))
     region.locations.append(location)
     crimenet.connect(region, f"Final Heist")
 
