@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import worlds.payday2.options
+import math
 from BaseClasses import Item, ItemClassification as IC
 from .item_types import itemData, itemType
 
@@ -33,20 +33,14 @@ fillerItemDict: dict[int, itemData] = {
     204: itemData(IC.filler, 1, "Second Saw", itemType.progression),
     205: itemData(IC.useful, 6, "Armor", itemType.unlock),
     206: itemData(IC.useful, 7, "Deployable", itemType.unlock),
-    300: itemData(IC.useful, 0, "Random Skill", itemType.filler),
-    301: itemData(IC.useful, 0, "Perk Deck Effect", itemType.filler),
-    302: itemData(IC.filler, 0, "Stat Upgrade", itemType.filler),
-    303: itemData(IC.filler, 0, "6 Coins", itemType.filler),
+    207: itemData(IC.useful, 115, "Random Skill", itemType.filler),
+    208: itemData(IC.useful, 179, "Perk Deck Effect", itemType.filler),
+    209: itemData(IC.filler, 150, "Stat Upgrade", itemType.filler),
+    300: itemData(IC.filler, 0, "6 Coins", itemType.filler),
 }
 
 fillerCountDict: dict[int, int] = {
-    200: 0,
-    201: 0,
-    202: 0,
-    203: 0,
-    204: 0,
-    205: 0,
-    206: 0,
+    200: 0, 201: 0, 202: 0, 203: 0, 204: 0, 205: 0, 206: 0, 207: 0, 208: 0, 209: 0,
 }
 
 itemDict: dict[int, itemData] = {}
@@ -61,7 +55,15 @@ class PAYDAY2Item(Item):
     game = "PAYDAY 2"
 
 def update_items(world: PAYDAY2World) -> None:
-    progressionItemDict[1] = itemData(IC.progression, world.options.time_upgrades, "Extra Time", itemType.progression)
+    itemsForGoal = (60 - world.options.starting_time) / world.options.extra_time
+    timeItemCap = (100 - world.options.starting_time) // world.options.extra_time
+    numExtraTime = world.options.time_upgrades
+    if numExtraTime < itemsForGoal:
+        numExtraTime = math.ceil(itemsForGoal)
+    elif numExtraTime > timeItemCap:
+        numExtraTime = timeItemCap
+
+    progressionItemDict[1] = itemData(IC.progression, numExtraTime, "Extra Time", itemType.progression)
     progressionItemDict[3] = itemData(IC.progression, world.options.bot_count, "Extra Bot", itemType.progression)
 
     trapItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * (world.options.final_difficulty - world.options.starting_difficulty), "Difficulty Increase", itemType.trap)
@@ -82,13 +84,12 @@ def get_random_filler_item_name(world: PAYDAY2World) -> str:
     itemId = ITEM_NAME_TO_ID[item.name]
     if item.count > 0:
         if fillerCountDict[itemId] >= item.count:
-            item = fillerItemDict[world.random.randint(300, 302)]
+            item = fillerItemDict[world.random.randint(300, 300)]
         fillerCountDict[itemId] += 1
 
     return item.name
 
 def create_all_items(world: PAYDAY2World) -> None:
-
     #Create progression items
     itemPool: list[PAYDAY2Item] = []
     for itemId, item in progressionItemDict.items():

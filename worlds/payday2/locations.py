@@ -33,8 +33,10 @@ def create_and_connect_regions(world: PAYDAY2World) -> None:
     crimenet = world.get_region("Crime.net")
     safehouseT2 = world.get_region("Safe House Tier 2")
     safehouseT3 = world.get_region("Safe House Tier 3")
-    world.create_entrance(crimenet, safehouseT2, HasAllCounts({"24 Coins": 12, "Extra Time": 2}), "276 Coins")
-    world.create_entrance(crimenet, safehouseT3, HasAllCounts({"24 Coins": 35, "Extra Time": 4}), "828 Coins")
+    itemsForGoal = (60 - world.options.starting_time) / world.options.extra_time
+
+    world.create_entrance(crimenet, safehouseT2, HasAllCounts({"24 Coins": 12, "Extra Time": itemsForGoal // 3}), "276 Coins")
+    world.create_entrance(crimenet, safehouseT3, HasAllCounts({"24 Coins": 35, "Extra Time": 2 * itemsForGoal // 3}), "828 Coins")
 
 def create_all_locations(world: PAYDAY2World) -> None:
     create_score_locations(world)

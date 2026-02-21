@@ -9,13 +9,13 @@ class ScoreLocations(Range):
 
     display_name = "Score Checks"
 
-    range_start = 1
+    range_start = 15
     range_end = 1000
     default = 100
 
 class StartingTime(Range):
     """
-    How much time you start with in minutes before time upgrades.
+    How many minutes you start with before time upgrades.
     """
 
     display_name = "Starting Time"
@@ -26,11 +26,11 @@ class StartingTime(Range):
 
 class TimeUpgrades(Range):
     """
-    How many time upgrades are in the item pool.
-    Max time cannot go above 100 minutes.
+    Number of time upgrades to try to add to the item pool.
+    If max time is below 60 minutes or above 100 minutes this will be adjusted to fit.
     """
 
-    display_name = "Extra Time Upgrades"
+    display_name = "Time Upgrades"
 
     range_start = 0
     range_end = 99
@@ -38,11 +38,10 @@ class TimeUpgrades(Range):
 
 class TimeUpgradeStrength(Range):
     """
-    How much time each upgrade gives in minutes.
-    Max time cannot go above 100 minutes.
+    How many minutes you gain from each time upgrade.
     """
 
-    display_name = "Time Given Per Upgrade"
+    display_name = "Time Added Per Upgrade"
 
     range_start = 1
     range_end = 99
@@ -54,7 +53,7 @@ class BotCount(Range):
     More than 3 requires BigLobby3: https://modworkshop.net/mod/21582
     """
 
-    display_name = "Bot Count"
+    display_name = "Max Bots"
 
     range_start = 0
     range_end = 21
