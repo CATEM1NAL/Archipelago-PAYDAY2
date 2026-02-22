@@ -12,11 +12,14 @@ if TYPE_CHECKING:
 progressionItemDict: dict[int, itemData] = {
     1: itemData(IC.progression | IC.useful, 5, "Extra Time", itemType.progression),
     2: itemData(IC.progression, 2, "Drill Speed", itemType.progression),
-    3: itemData(IC.progression, 21, "Extra Bot", itemType.progression),
+    3: itemData(IC.progression, 3, "Extra Bot", itemType.progression),
     4: itemData(IC.progression, 1, "Saw", itemType.progression),
     5: itemData(IC.progression, 1, "ECM", itemType.progression),
     6: itemData(IC.progression, 1, "Trip Mines", itemType.progression),
     7: itemData(IC.progression_deprioritized_skip_balancing, 35, "24 Coins", itemType.progression),
+    207: itemData(IC.useful, 10, "Random Skill", itemType.filler),
+    208: itemData(IC.useful, 9, "Perk Deck Effect", itemType.filler),
+    209: itemData(IC.filler, 5, "Stat Upgrade", itemType.filler),
 }
 
 trapItemDict: dict[int, itemData] = {
@@ -58,10 +61,13 @@ def update_items(world: PAYDAY2World) -> None:
     itemsForGoal = (60 - world.options.starting_time) / world.options.extra_time
     timeItemCap = (100 - world.options.starting_time) // world.options.extra_time
     numExtraTime = world.options.time_upgrades
+
     if numExtraTime < itemsForGoal:
         numExtraTime = math.ceil(itemsForGoal)
+        print(f"Increased {world.player_name}'s Extra Time items from {world.options.time_upgrades} to {numExtraTime} for world to be playable.")
     elif numExtraTime > timeItemCap:
         numExtraTime = timeItemCap
+        print(f"Reduced {world.player_name}'s Extra Time items from {world.options.time_upgrades} to {numExtraTime} to not exceed 100 minutes.")
 
     progressionItemDict[1] = itemData(IC.progression, numExtraTime, "Extra Time", itemType.progression)
     progressionItemDict[3] = itemData(IC.progression, world.options.bot_count, "Extra Bot", itemType.progression)
