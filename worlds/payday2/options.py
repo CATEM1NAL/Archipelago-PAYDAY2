@@ -15,7 +15,7 @@ class ScoreLocations(Range):
 
 class StartingTime(Range):
     """
-    How many minutes you start with before time upgrades.
+    How many minutes you start with before time bonuses.
     """
 
     display_name = "Starting Time"
@@ -26,11 +26,12 @@ class StartingTime(Range):
 
 class TimeUpgrades(Range):
     """
-    Number of time upgrades to try to add to the item pool.
-    If max time is below 60 minutes or above 100 minutes this will be adjusted to fit.
+    Number of time bonuses the multiworld will try to generate.
+    If the max time would be below 60 minutes or above 100 minutes this will be adjusted to fit.
+    The APWorld will assume you can win when you have at least 60 minutes available (~10 per heist).
     """
 
-    display_name = "Time Upgrades"
+    display_name = "Time Bonuses"
 
     range_start = 0
     range_end = 99
@@ -38,10 +39,10 @@ class TimeUpgrades(Range):
 
 class TimeUpgradeStrength(Range):
     """
-    How many minutes you gain from each time upgrade.
+    How many minutes you gain from each time bonus.
     """
 
-    display_name = "Time Added Per Upgrade"
+    display_name = "Minutes Per Time Bonus"
 
     range_start = 1
     range_end = 99
@@ -50,7 +51,7 @@ class TimeUpgradeStrength(Range):
 class BotCount(Range):
     """
     How many bots will be in the item pool.
-    More than 3 requires BigLobby3 and may make the game less stable:
+    More than 3 requires BigLobby and may make the game less stable:
     https://modworkshop.net/mod/21582
     """
 
@@ -62,7 +63,7 @@ class BotCount(Range):
 
 class AdditionalSaw(Range):
     """
-    How many saws are in the item pool.
+    How many OVE9000 saws are in the item pool.
     """
 
     display_name = "Saws"
@@ -70,11 +71,26 @@ class AdditionalSaw(Range):
     range_start = 0
     range_end = 2
 
-    default = 1
+    default = 2
+
+class NineLives(Range):
+    """
+    How many Nine Lives upgrades are available.
+    Nine Lives Lv1: +1 extra down.
+    Nine Lives Lv2: +3 extra downs.
+    """
+
+    display_name = "Nine Lives"
+
+    range_start = 0
+    range_end = 2
+
+    default = 2
 
 class PrimaryCount(Range):
     """
-    The minimum number of primary weapons in the item pool.
+    How many primary weapons are guaranteed to generate in the multiworld.
+    Additional primaries may be created randomly.
     18 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -86,7 +102,8 @@ class PrimaryCount(Range):
 
 class AkimboCount(Range):
     """
-    The minimum number of akimbos in the item pool.
+    How many akimbos are guaranteed to generate in the multiworld.
+    Additional akimbos may be created randomly.
     44 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -98,7 +115,8 @@ class AkimboCount(Range):
 
 class SecondaryCount(Range):
     """
-    The minimum number of secondary weapons in the item pool.
+    How many secondary weapons are guaranteed to generate in the multiworld.
+    Additional secondaries may be created randomly.
     23 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -110,7 +128,8 @@ class SecondaryCount(Range):
 
 class MeleeCount(Range):
     """
-    The minimum number of melee weapons in the item pool.
+    How many melee weapons are guaranteed to generate in the multiworld.
+    Additional melees may be created randomly.
     18 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -122,7 +141,8 @@ class MeleeCount(Range):
 
 class ThrowableCount(Range):
     """
-    The minimum number of throwables in the item pool.
+    How many throwables are guaranteed to generate in the multiworld.
+    Additional throwables may be created randomly.
     5 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -134,7 +154,8 @@ class ThrowableCount(Range):
 
 class ArmorCount(Range):
     """
-    The minimum number of armor unlocks in the item pool.
+    How many armor unlocks are guaranteed to generate in the multiworld.
+    Additional armor unlocks may be created randomly.
     """
 
     display_name = "Armors"
@@ -145,7 +166,8 @@ class ArmorCount(Range):
 
 class DeployablesCount(Range):
     """
-    The minimum number of unimportant deployable unlocks in the item pool.
+    How many unimportant deployables are guaranteed to generate in the multiworld.
+    Additional deployables may be created randomly.
     ECMs and trip mines will always generate somewhere in the multiworld.
     """
 
@@ -195,7 +217,6 @@ class MaxDiff(Choice):
 
 class OneDown(Choice):
     """
-    Activates the One Down modifier.
     When One Down is active all points earned are doubled.
     """
 
@@ -222,8 +243,7 @@ class DiffTraps(Choice):
 
 class MutatorTraps(Range):
     """
-    How many mutator traps to add to the item pool.
-    Mutator traps cause every heist to roll 1 additional mutator,
+    Mutator traps cause all future heists to roll an additional mutator,
     but also grant a score multiplier.
     """
 
@@ -252,6 +272,6 @@ class PAYDAY2Options(PerGameCommonOptions):
     throwables: ThrowableCount
     starting_difficulty: MinDiff
     final_difficulty: MaxDiff
-    one_down: OneDown
+    #one_down: OneDown
     difficulty_traps: DiffTraps
     mutator_traps: MutatorTraps

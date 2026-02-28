@@ -198,10 +198,8 @@ class PAYDAY2Context(CommonContext):
 
     async def score_check(self, score):
         try:
-            #Solve your triangular number every time because you refuse to just save and read n.
-            print(score)
+            # Solve triangular number
             n = self.getN(score)
-            print(n)
             for i in range(1, n + 1):
                 await self.check_locations([i])
 

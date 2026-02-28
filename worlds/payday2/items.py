@@ -17,12 +17,12 @@ progressionItemDict: dict[int, itemData] = {
     5: itemData(IC.progression, 1, "ECM", itemType.progression),
     6: itemData(IC.progression, 1, "Trip Mines", itemType.progression),
     7: itemData(IC.progression_deprioritized_skip_balancing, 35, "24 Coins", itemType.progression),
+    8: itemData(IC.progression, 2, "Nine Lives", itemType.progression),
 }
 
 trapItemDict: dict[int, itemData] = {
     100: itemData(IC.trap, 5, "Difficulty Increase", itemType.trap),
     101: itemData(IC.trap, 5, "Additional Mutator", itemType.trap),
-    102: itemData(IC.trap, 1, "One Down", itemType.trap),
 }
 
 usefulItemDict: dict[int, itemData] = {
@@ -85,8 +85,6 @@ def update_items(world: PAYDAY2World) -> None:
 
     trapItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * (world.options.final_difficulty - world.options.starting_difficulty), "Difficulty Increase", itemType.trap)
     trapItemDict[101] = itemData(IC.trap, world.options.mutator_traps, "Additional Mutator", itemType.trap)
-    if world.options.one_down != 1:
-        trapItemDict[102] = itemData(IC.trap, 0, "One Down", itemType.trap)
 
     usefulItemDict[200] = itemData(IC.useful, world.options.primary_weapons, "Primary Weapon", itemType.weapon)
     fillerLimitDict[200] -= world.options.primary_weapons
