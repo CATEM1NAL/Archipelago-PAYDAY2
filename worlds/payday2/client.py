@@ -40,11 +40,10 @@ class scribble:
         with open(self.path, "w+") as f:
             json.dump(self.data, f)
 
-    def writeSeed(self, seed):
-        self.data["seed"] = seed
+    def writeSlotData(self, slotData, key):
+        self.data[key] = slotData
         with open(self.path, "w+") as f:
             json.dump(self.data, f)
-
 # scrungle likes to watch
 class scrungle:
     def __init__(self, path, context):
@@ -125,7 +124,7 @@ class PAYDAY2Context(CommonContext):
 
         # Error checking
         if version != args['slot_data']['server_version']:
-            logger.info(f"WARNING: Server ({args['slot_data']['server_version']}) and client ({version}) are using different versions!")
+            logger.info(f"WARNING: Server ({args['slot_data']['server_version']}) and client ({version}) are using different versions of the APWorld!")
 
         self.path = os.path.dirname(PAYDAY2World.settings.payday2_path) + "/mods/saves/"
         self.scribble = scribble(self.path + "apyday2-client.txt")
@@ -144,148 +143,40 @@ class PAYDAY2Context(CommonContext):
             modSeed = modSave["game"]["seed"]
 
         except KeyError as e:
-            self.scribble.writeSeed(args['slot_data']['seed_name'])
-            print(f"Couldn't find seed, wrote to client file")
+            self.scribble.writeSlotData(args['slot_data']['seed_name'], "seed")
+            print(f"Wrote seed to client file")
 
         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
             print(f"Couldn't load apyday2.txt: {e}")
 
-        ### MESS OF SAVE CHECKING STARTS HERE
-
         try:
             if modSeed != args['slot_data']['seed_name']:
-
-                # Check operating system, if Windows we can handle different saves ourselves
-                if os.name == "--nt": # DOESN'T ACTUALLY WORK SO I DISABLED IT
-                    print("Seed mismatch! Fixing...")
-                    abortFix = False
-
-                    # Game save handler
-                    paydaySaves = (os.getenv("LOCALAPPDATA").replace("\\", "/") + "/PAYDAY 2/saves/")
-                    steamIds = [folder for folder in os.listdir(paydaySaves)
-                                if os.path.isdir(os.path.join(paydaySaves, folder))]
-
-                    saveCount = 0
-                    for folder in steamIds:
-                        if "save041.sav" in os.listdir(paydaySaves + folder):
-                            saveCount += 1
-                            saveDir = folder + "/"
-
-                            if saveCount > 1:
-                                logger.error("ERROR: Too much uncertainty to restore previous save.\n"
-                                       "Reset your save manually with the following steps:\n"
-                                       "1) Launch PAYDAY 2.\n"
-                                       "2) Click 'OPTIONS'.\n"
-                                       "3) Click 'ADVANCED'.\n"
-                                       "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
-                                       "5) Click 'YES' and wait for the game to reload.\n"
-                                       "You can reconnect after the game reloads.")
-                                Utils.async_start(self.disconnect())
-                                break
-
-                        else:
-                            logger.error("ERROR: No game save found to resume from.\n"
-                                   "Reset your save manually with the following steps:\n"
-                                   "1) Launch PAYDAY 2.\n"
-                                   "2) Click 'OPTIONS'.\n"
-                                   "3) Click 'ADVANCED'.\n"
-                                   "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
-                                   "5) Click 'YES' and wait for the game to reload.\n"
-                                   "You can reconnect after the game reloads.")
-                            Utils.async_start(self.disconnect())
-
-                    if saveCount == 1:
-                        if os.path.isdir(paydaySaves + saveDir + "apyday2_backups"):
-                            fileFound = True
-
-                            for file in os.listdir(paydaySaves + saveDir + "apyday2_backups"):
-                                if file == args['slot_data']['seed_name']:
-                                    print("Found previous save data, restoring")
-
-                                    # Copy current save to backup folder, copy old save back to continue playing
-                                    shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
-                                    shutil.copy(paydaySaves + saveDir + "apyday2_backups/" + args['slot_data']['seed_name'], paydaySaves + saveDir + "save041.sav")
-                                    break
-                                else:
-                                    fileFound = False
-
-                            if not fileFound or len(os.listdir(paydaySaves + saveDir + "apyday2_backups")) == 0:
-                                print("No existing save found. Backing up")
-                                shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
-                                os.remove(paydaySaves + saveDir + "save041.sav")
-
-                        else:
-                            os.mkdir(paydaySaves + saveDir + "apyday2_backups")
-                            print("Created backup save folder.")
-
-                            # Copy save to backup folder, using the seed as the file name
-                            shutil.copy(paydaySaves + saveDir + "save041.sav", paydaySaves + saveDir + "apyday2_backups/" + modSeed)
-                            os.remove(paydaySaves + saveDir + "save041.sav")
-
-
-                    if saveCount == 1:
-                        # apyday2.txt handler
-                        if os.path.isdir(self.path + "/apyday2_backups"):
-                            fileFound = True
-
-                            for file in os.listdir(self.path + "/apyday2_backups"):
-                                if file == args['slot_data']['seed_name']:
-                                    print("Found previous save data, restoring")
-                                    # Copy current save to backup folder, copy old save back to continue playing
-                                    shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
-                                    shutil.copy(self.path + "/apyday2_backups/" + args['slot_data']['seed_name'], self.path + "apyday2.txt")
-                                    logger.info("Found and restored previous save.\n"
-                                                "Old saves are in the following folders:\n"
-                                                ".../PAYDAY 2/mods/saves/apyday2_backups\n"
-                                                f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
-                                                "Remember to clean them out from time to time!")
-                                    break
-                                else:
-                                    fileFound = False
-                            if not fileFound or len(os.listdir(self.path + "/apyday2_backups")) == 0:
-                                print("No existing save found. Backing up")
-                                shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
-                                os.remove(self.path + "apyday2.txt")
-                                logger.info("Backed up previous save data for future sessions.\n"
-                                            "Saves were moved to the following folders:\n"
-                                            ".../PAYDAY 2/mods/saves/apyday2_backups\n"
-                                            f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
-                                            "Remember to clean them out from time to time!")
-
-                        else:
-                            os.mkdir(self.path + "/apyday2_backups")
-                            print("Created backup save folder.")
-                            # Copy save to backup folder, using the seed as the file name
-                            shutil.copy(self.path + "apyday2.txt", self.path + "/apyday2_backups/" + modSeed)
-                            os.remove(self.path + "apyday2.txt")
-                            logger.info("Backed up previous save data for future sessions.\n"
-                                        "Saves were moved to the following folders:\n"
-                                        ".../PAYDAY 2/mods/saves/apyday2_backups\n"
-                                        f"%LOCALAPPDATA%/PAYDAY 2/{saveDir}apyday2_backups\n"
-                                        "Remember to clean them out from time to time!")
-
-                # System isn't Windows, don't attempt anything
-                else:
-                    logger.error("ERROR: Your current save was made on a different seed.\n"
-                                 "Only one multiworld can currently be played at a time.\n\n"
-                                 "Delete your save with the following steps:\n"
-                                 "1) Launch PAYDAY 2.\n"
-                                 "2) Click 'OPTIONS'.\n"
-                                 "3) Click 'ADVANCED'.\n"
-                                 "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
-                                 "5) Click 'YES' and wait for the game to reload.\n\n"
-                                 "You can reconnect after the game reloads.")
-                    Utils.async_start(self.disconnect())
+                logger.error("ERROR: Your Criminal Dawn save was made on a different seed.\n"
+                             "Only one multiworld can currently be played at a time.\n\n"
+                             "Delete your save with the following steps:\n"
+                             "1) Launch PAYDAY 2.\n"
+                             "2) Click 'OPTIONS'.\n"
+                             "3) Click 'ADVANCED'.\n"
+                             "4) Click 'RESET ACCOUNT PROGRESSION'.\n"
+                             "5) Click 'YES' and wait for the game to reload.\n\n"
+                             "You can reconnect after the game finishes reloading.")
+                Utils.async_start(self.disconnect())
 
         except:
             pass
-
-        ### MESS OF SAVE CHECKING HAS ENDED. THANK GOD
 
         self.scrungle = scrungle(self.path + "apyday2.txt", self)
         scrungle_task = asyncio.create_task(self.scrungle.watch(), name='scrungle')
 
         self.itemDict = items.itemDict
+
+        self.startingTime = args['slot_data']['starting_time']
+        self.timeBonus = args['slot_data']['time_bonus']
+        self.finalDifficulty = args['slot_data']['final_difficulty']
+
+        self.scribble.writeSlotData(self.startingTime, "start_time")
+        self.scribble.writeSlotData(self.timeBonus, "time_bonus")
+        self.scribble.writeSlotData(self.finalDifficulty, "max_diff")
 
     def on_received_items(self, args: dict):
         # for entry in self.items_received:

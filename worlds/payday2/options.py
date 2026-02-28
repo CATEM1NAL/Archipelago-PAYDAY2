@@ -50,7 +50,8 @@ class TimeUpgradeStrength(Range):
 class BotCount(Range):
     """
     How many bots will be in the item pool.
-    More than 3 requires BigLobby3: https://modworkshop.net/mod/21582
+    More than 3 requires BigLobby3 and may make the game less stable:
+    https://modworkshop.net/mod/21582
     """
 
     display_name = "Max Bots"
@@ -59,78 +60,84 @@ class BotCount(Range):
     range_end = 21
     default = 3
 
-class AdditionalSaw(Choice):
+class AdditionalSaw(Range):
     """
-    Adds a second saw to the item pool.
-    When disabled you can only get one saw (primary or secondary).
+    How many saws are in the item pool.
     """
 
-    display_name = "Second Saw"
+    display_name = "Saws"
 
-    option_disabled = 0
-    option_enabled = 1
+    range_start = 0
+    range_end = 2
 
     default = 1
 
 class PrimaryCount(Range):
     """
-    The max number of primary weapons in the item pool.
-    The actual number depends on how many locations you have.
-    62 is the most you can have without any DLC - going over will create items that do nothing.
+    The minimum number of primary weapons in the item pool.
+    18 is the most you can have without DLC - extra items will do nothing.
     """
 
-    display_name = "Max Primary Weapons"
+    display_name = "Primary Weapons"
 
     range_start = 0
-    range_end = 131
-    default = 62
+    range_end = 72
+    default = 10
+
+class AkimboCount(Range):
+    """
+    The minimum number of akimbos in the item pool.
+    44 is the most you can have without DLC - extra items will do nothing.
+    """
+
+    display_name = "Akimbos"
+
+    range_start = 0
+    range_end = 57
+    default = 10
 
 class SecondaryCount(Range):
     """
-    The max number of secondary weapons in the item pool.
-    The actual number depends on how many locations you have.
-    28 is the most you can have without any DLC - going over will create items that do nothing.
+    The minimum number of secondary weapons in the item pool.
+    23 is the most you can have without DLC - extra items will do nothing.
     """
 
-    display_name = "Max Secondary Weapons"
+    display_name = "Secondary Weapons"
 
     range_start = 0
-    range_end = 76
-    default = 28
+    range_end = 66
+    default = 10
 
 class MeleeCount(Range):
     """
-    The max number of melee weapons in the item pool.
-    The actual number depends on how many locations you have.
-    17 is the most you can have without any DLC - going over will create items that do nothing.
+    The minimum number of melee weapons in the item pool.
+    18 is the most you can have without DLC - extra items will do nothing.
     """
 
-    display_name = "Max Melee Weapons"
+    display_name = "Melee Weapons"
 
     range_start = 0
-    range_end = 75
-    default = 17
+    range_end = 86
+    default = 5
 
 class ThrowableCount(Range):
     """
-    The max number of throwables in the item pool.
-    The actual number depends on how many locations you have.
-    5 is the most you can have without any DLC - going over will create items that do nothing.
+    The minimum number of throwables in the item pool.
+    5 is the most you can have without DLC - extra items will do nothing.
     """
 
-    display_name = "Max Throwables"
+    display_name = "Throwables"
 
     range_start = 0
-    range_end = 8
+    range_end = 9
     default = 5
 
 class ArmorCount(Range):
     """
-    The max number of armor unlocks in the item pool.
-    The actual number depends on how many locations you have.
+    The minimum number of armor unlocks in the item pool.
     """
 
-    display_name = "Max Armors"
+    display_name = "Armors"
 
     range_start = 0
     range_end = 6
@@ -138,11 +145,11 @@ class ArmorCount(Range):
 
 class DeployablesCount(Range):
     """
-    The max number of non-progression deployable unlocks in the item pool.
-    The actual number depends on how many locations you have.
+    The minimum number of unimportant deployable unlocks in the item pool.
+    ECMs and trip mines will always generate somewhere in the multiworld.
     """
 
-    display_name = "Max Deployables"
+    display_name = "Deployables"
 
     range_start = 0
     range_end = 7
@@ -151,7 +158,7 @@ class DeployablesCount(Range):
 class MinDiff(Choice):
     """
     This is the difficulty your run starts on.
-    Higher difficulties give a score multiplier,
+    Higher difficulties give a bigger score multiplier,
     so raising this will speed up the early game.
     """
 
@@ -170,21 +177,21 @@ class MinDiff(Choice):
 class MaxDiff(Choice):
     """
     This is the highest difficulty your run can reach.
-    Higher difficulties give a score multiplier,
+    Higher difficulties give a bigger score multiplier,
     so lowering this will slow the late game.
     """
 
-    display_name = "Highest Difficulty"
+    display_name = "Final Difficulty"
 
-    option_normal = 0
-    option_hard = 1
-    option_very_hard = 2
-    option_overkill = 3
-    option_mayhem = 4
-    option_death_wish = 5
-    option_death_sentence = 6
+    option_normal = 1
+    option_hard = 2
+    option_very_hard = 3
+    option_overkill = 4
+    option_mayhem = 5
+    option_death_wish = 6
+    option_death_sentence = 7
 
-    default = 5
+    default = 6
 
 class OneDown(Choice):
     """
@@ -202,10 +209,9 @@ class OneDown(Choice):
 
 class DiffTraps(Choice):
     """
-    Whether to add difficulty traps to the item pool or not.
     Difficulty traps permanently increase the difficulty by 1 per trap collected,
     but also grant a score multiplier.
-    The number of traps generated will match the selected difficulties.
+    Difficulty traps will not bypass your maximum difficulty.
     """
 
     display_name = "Difficulty Traps"
@@ -216,7 +222,7 @@ class DiffTraps(Choice):
 
 class MutatorTraps(Range):
     """
-    How many mutator traps will be added to the item pool.
+    How many mutator traps to add to the item pool.
     Mutator traps cause every heist to roll 1 additional mutator,
     but also grant a score multiplier.
     """
@@ -227,28 +233,6 @@ class MutatorTraps(Range):
     range_end = 5
     default = 5
 
-class ExcludedHeists(OptionSet):
-    """
-    If you're a COWARD that can't handle Bomb: Forest then you can exclude it here.
-    Any heists you don't own will automatically be excluded.
-
-    GROUPS:
-    "Tutorials" = Stealth Tutorial, Loud Tutorial (only active with certain requirements, rare to get)
-    "Stealth Only" = Stealth Tutorial, Shadow Raid, Murky Station, Yacht Heist
-    "Events" = Cursed Kill Room, Prison Nightmare, Lab Rats, Safe House Nightmare
-    "Endless" = Cursed Kill Room, Santa's Workshop, Prison Nightmare, Cook Off, White Xmas, Border Crystals, Lab Rats
-    "Border Crossing" = Border Crossing, Border Crystals
-
-    HEISTS:
-    "Safe House Nightmare", "Lab Rats", "Bomb: Forest", "Goat Sim"
-    """
-
-    display_name = "Excluded Heists"
-
-    valid_keys = ["Tutorials", "Stealth Only", "Events",
-                  "Safe House Nightmare", "Bomb: Forest", "Goat Sim", "Border Crossing", "Lab Rats"]
-    default = ["Events", "Border Crossing", "Bomb: Forest", "Goat Sim"]
-
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -256,18 +240,18 @@ class PAYDAY2Options(PerGameCommonOptions):
     score_checks: ScoreLocations
     starting_time: StartingTime
     time_upgrades: TimeUpgrades
-    extra_time: TimeUpgradeStrength
-    bot_count: BotCount
-    second_saw: AdditionalSaw
+    time_bonus: TimeUpgradeStrength
+    bots: BotCount
     armor_unlocks: ArmorCount
-    deployable_unlocks: DeployablesCount
-    max_primary_weapons: PrimaryCount
-    max_secondary_weapons: SecondaryCount
-    max_melee_weapons: MeleeCount
-    max_throwables: ThrowableCount
+    deployables: DeployablesCount
+    saws: AdditionalSaw
+    primary_weapons: PrimaryCount
+    akimbo: AkimboCount
+    secondary_weapons: SecondaryCount
+    melee_weapons: MeleeCount
+    throwables: ThrowableCount
     starting_difficulty: MinDiff
     final_difficulty: MaxDiff
     one_down: OneDown
     difficulty_traps: DiffTraps
     mutator_traps: MutatorTraps
-    excluded_heists: ExcludedHeists
