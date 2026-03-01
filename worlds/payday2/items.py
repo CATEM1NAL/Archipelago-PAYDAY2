@@ -108,7 +108,11 @@ def update_items(world: PAYDAY2World) -> None:
     fillerLimitDict[206] -= world.options.deployables
 
 def get_random_filler_item_name(world: PAYDAY2World) -> str:
-    item = world.random.choice(tuple(usefulItemDict.values()))
+    fillerType = world.random.choice(["weapon", "upgrade"])
+    if fillerType == "weapon":
+        item = usefulItemDict[world.random.randint(200, 204)]
+    elif fillerType == "upgrade":
+        item = usefulItemDict[world.random.randint(205, 209)]
     itemId = ITEM_NAME_TO_ID[item.name]
     if fillerLimitDict[itemId] > 0:
         fillerLimitDict[itemId] -= 1

@@ -138,13 +138,12 @@ class PAYDAY2Context(CommonContext):
             Utils.async_start(self.disconnect())
 
         # Check seed
+        self.scribble.writeSlotData(args['slot_data']['seed_name'], "seed")
+        print(f"Wrote seed to client file")
+
         try:
             modSave = load_json_file(self.path + "apyday2.txt")
             modSeed = modSave["game"]["seed"]
-
-        except KeyError as e:
-            self.scribble.writeSlotData(args['slot_data']['seed_name'], "seed")
-            print(f"Wrote seed to client file")
 
         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
             print(f"Couldn't load apyday2.txt: {e}")
