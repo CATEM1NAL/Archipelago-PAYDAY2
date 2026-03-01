@@ -10,7 +10,7 @@ components.append(
     Component(
         "PAYDAY 2: Criminal Dawn Client",
         func=run_client,
-        game_name="PAYDAY 2",
+        game_name="PAYDAY 2: Criminal Dawn",
         component_type=Type.CLIENT,
         supports_uri=True,
         description="Launch the client for the Criminal Dawn mod.",

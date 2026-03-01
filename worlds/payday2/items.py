@@ -13,7 +13,7 @@ progressionItemDict: dict[int, itemData] = {
     1: itemData(IC.progression | IC.useful, 5, "Time Bonus", itemType.progression),
     2: itemData(IC.progression, 2, "Drill Sawgeant", itemType.progression),
     3: itemData(IC.progression, 3, "Extra Bot", itemType.progression),
-    4: itemData(IC.progression, 1, "OVE9000 Saw", itemType.progression),
+    4: itemData(IC.progression, 2, "OVE9000 Saw", itemType.progression),
     5: itemData(IC.progression, 1, "ECM", itemType.progression),
     6: itemData(IC.progression, 1, "Trip Mines", itemType.progression),
     7: itemData(IC.progression_deprioritized_skip_balancing, 35, "24 Coins", itemType.progression),
@@ -65,7 +65,7 @@ ITEM_NAME_TO_ID = {item.name: key for key, item in itemDict.items()}
 itemKeys = []
 
 class PAYDAY2Item(Item):
-    game = "PAYDAY 2"
+    game = "PAYDAY 2: Criminal Dawn"
 
 def update_items(world: PAYDAY2World) -> None:
     itemsForGoal = (60 - world.options.starting_time) / world.options.time_bonus
@@ -81,7 +81,7 @@ def update_items(world: PAYDAY2World) -> None:
 
     progressionItemDict[1] = itemData(IC.progression, numExtraTime, "Time Bonus", itemType.progression)
     progressionItemDict[3] = itemData(IC.progression, world.options.bots, "Extra Bot", itemType.progression)
-    progressionItemDict[3] = itemData(IC.progression, world.options.saws, "OVE9000 Saw", itemType.progression)
+    progressionItemDict[4] = itemData(IC.progression, world.options.saws, "OVE9000 Saw", itemType.progression)
 
     trapItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * (world.options.final_difficulty - world.options.starting_difficulty), "Difficulty Increase", itemType.trap)
     trapItemDict[101] = itemData(IC.trap, world.options.mutator_traps, "Additional Mutator", itemType.trap)

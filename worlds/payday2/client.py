@@ -98,7 +98,7 @@ class scrungle:
             print("Scrungle stopped watching. Scrungle bored.")
 
 class PAYDAY2Context(CommonContext):
-    game = 'PAYDAY 2'
+    game = "PAYDAY 2: Criminal Dawn"
     command_processor = PAYDAY2CommandProcessor
     items_handling = 0b111
 
