@@ -65,7 +65,7 @@ ITEM_NAME_TO_ID = {item.name: key for key, item in itemDict.items()}
 itemKeys = []
 
 class PAYDAY2Item(Item):
-    game = "PAYDAY 2: Criminal Dawn"
+    game = "PAYDAY 2"
 
 def update_items(world: PAYDAY2World) -> None:
     itemsForGoal = (60 - world.options.starting_time) / world.options.time_bonus

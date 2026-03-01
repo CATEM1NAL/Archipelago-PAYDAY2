@@ -23,7 +23,7 @@ LOCATION_NAME_TO_ID.update({f"{room} - Tier 2": key+1001 for key, room in enumer
 LOCATION_NAME_TO_ID.update({f"{room} - Tier 3": key+1001+len(safehouseRooms) for key, room in enumerate(safehouseRooms)})
 
 class PAYDAY2Location(Location):
-    game = "PAYDAY 2: Criminal Dawn"
+    game = "PAYDAY 2"
 
 def create_and_connect_regions(world: PAYDAY2World) -> None:
     world.multiworld.regions.append(Region("Crime.net", world.player, world.multiworld))
