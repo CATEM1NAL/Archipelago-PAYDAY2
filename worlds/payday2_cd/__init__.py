@@ -18,4 +18,4 @@ components.append(
     )
 )
 
-icon_paths["PAYDAY 2: Criminal Dawn"] = f"ap:{__name__}/pd2-logo.png"
+icon_paths["PAYDAY 2: Criminal Dawn"] = f"ap:{__name__}/dawn.png"
