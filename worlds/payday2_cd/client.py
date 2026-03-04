@@ -55,6 +55,8 @@ class scrungle:
         print(f"Scrungle is watching {self.path}...")
         modSave = load_json_file(self.path)
         prevScore = 0
+        chatMessage = ""
+        lastChatTime = 0
         lastModTime = os.path.getmtime(self.path) if os.path.isfile(self.path) else 0.0
         lastModTime = 0
 
@@ -90,7 +92,20 @@ class scrungle:
                             if safehouseDict != []:
                                 await self.context.safehouse_check(safehouseDict)
                         except Exception as e:
-                            print(f"Couldn't load apyday2.txt: {e}")
+                            print(f"Couldn't find apyday2.txt: {e}")
+
+                        try:
+                            commandprocessor = self.context.command_processor(self.context)
+                            chatMessage = modSave["chat"]["message"]
+                            chatTimestamp = modSave["chat"]["timestamp"]
+
+                            if chatMessage != "" and chatTimestamp > lastChatTime:
+                                print("Sending chat message!")
+                                commandprocessor(chatMessage)
+                                lastChatTime = chatTimestamp
+                        except Exception as e:
+                            print(f"Couldn't find apyday2.txt: {e}")
+
 
                 await asyncio.sleep(1)
 
@@ -98,7 +113,7 @@ class scrungle:
             print("Scrungle stopped watching. Scrungle bored.")
 
 class PAYDAY2Context(CommonContext):
-    game = "PAYDAY 2"
+    game = "PAYDAY 2: Criminal Dawn"
     command_processor = PAYDAY2CommandProcessor
     items_handling = 0b111
 
@@ -143,13 +158,17 @@ class PAYDAY2Context(CommonContext):
 
         try:
             modSave = load_json_file(self.path + "apyday2.txt")
-            modSeed = modSave["game"]["seed"]
+
+            try:
+                modSeed = modSave["game"]["seed"]
+            except (KeyError):
+                modSeed = ""
 
         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
             print(f"Couldn't load apyday2.txt: {e}")
 
         try:
-            if modSeed != args['slot_data']['seed_name']:
+            if modSeed != args['slot_data']['seed_name'] and modSeed != "":
                 logger.error("ERROR: Your Criminal Dawn save was made on a different seed.\n"
                              "Only one multiworld can currently be played at a time.\n\n"
                              "Delete your save with the following steps:\n"
