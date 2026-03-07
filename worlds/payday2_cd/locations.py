@@ -1,5 +1,5 @@
 from __future__ import annotations
-from rule_builder.rules import Has, HasAll, Rule, HasAllCounts
+from rule_builder.rules import Has, HasAllCounts
 from worlds.generic.Rules import forbid_item
 
 from typing import TYPE_CHECKING
@@ -15,9 +15,9 @@ def triangle(n: int) -> int:
 LOCATION_NAME_TO_ID = { f"{triangle(i)} Crime Points" : i for i in range(1, 1001) }
 
 safehouseRooms = ["Scarface's Room", "Dallas' Office", "Hoxton's Files", "Clover's Surveillance Center",
-                "Duke's Gallery", "Houston's Workshop", "Sydney's Studio", "Rust's Corner", "Joy's Van",
+                 "Duke's Gallery", "Houston's Workshop", "Sydney's Studio", "Rust's Corner", "Joy's Van",
                     "h3h3", "Bonnie's Gambling Den", "Jiro's Lounge", "Common Rooms", "Jimmy's Bar",
-                "Sangres' Cave", "Chains' Weapons Workshop", "Bodhi's Surfboard Workshop", "Jacket's Hangout",
+               "Sangres' Cave", "Chains' Weapons Workshop", "Bodhi's Surfboard Workshop", "Jacket's Hangout",
                 "Sokol's Hockey Gym", "Dragan's Gym", "Vault", "Wolf's Workshop", "Wick's Shooting Range"]
 
 LOCATION_NAME_TO_ID.update({f"{room} - Tier 2": key+1001 for key, room in enumerate(safehouseRooms)})
