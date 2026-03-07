@@ -313,7 +313,7 @@ class PAYDAY2Context(CommonContext):
             asyncio.create_task(self.resetDeathLinkFlag())
 
     async def resetDeathLinkFlag(self):
-        await asyncio.sleep(1)
+        await asyncio.sleep(3)
         self.deathLinkPending = False
 
     def run_gui(self):
