@@ -1,5 +1,6 @@
 from __future__ import annotations
 from rule_builder.rules import Has, HasAll, Rule, HasAllCounts
+from worlds.generic.Rules import forbid_item
 
 from typing import TYPE_CHECKING
 from BaseClasses import ItemClassification, Location, Region
@@ -52,8 +53,11 @@ def create_score_locations(world: PAYDAY2World) -> None:
             locId = world.location_name_to_id[locName]
             location = PAYDAY2Location(world.player, locName, locId, safehouse)
             safehouse.locations.append(location)
+            forbid_item(location, "24 Coins", world.player)
+            forbid_item(location, "6 Coins", world.player)
 
     crimenet = world.get_region("Crime.net")
+
     for i in range(1, world.options.score_checks+1):
         locName = f"{triangle(i)} Crime Points"
         locId = world.location_name_to_id[locName]
@@ -66,8 +70,20 @@ def create_score_locations(world: PAYDAY2World) -> None:
 
         if i == 1:
             crimenet.connect(region, "Start run")
+
         elif i > (world.options.score_checks / itemsForGoal):
-            world.set_rule(location, Has("Time Bonus", i // (world.options.score_checks / itemsForGoal)))
+            world.set_rule(location, Has("Time Bonus", i // (world.options.score_checks // itemsForGoal)))
+
+        if world.options.difficulty_traps:
+            diffTraps = i // (world.options.score_checks // (world.options.difficulty_traps * world.options.final_difficulty - 1))
+            world.set_rule(location, Has("Difficulty Increase", diffTraps))
+            #print(diffTraps)
+
+        if world.options.mutator_traps > 0:
+            mutatorTraps = i // (world.options.score_checks // world.options.mutator_traps)
+            world.set_rule(location, Has("Additional Mutator", mutatorTraps))
+            #print(mutatorTraps)
+
         if i > 1:
             prevRegion.connect(region, f"{i} points")
         prevRegion = region

@@ -21,8 +21,8 @@ progressionItemDict: dict[int, itemData] = {
 }
 
 trapItemDict: dict[int, itemData] = {
-    100: itemData(IC.trap, 5, "Difficulty Increase", itemType.trap),
-    101: itemData(IC.trap, 5, "Additional Mutator", itemType.trap),
+    100: itemData(IC.progression | IC.trap, 5, "Difficulty Increase", itemType.trap),
+    101: itemData(IC.progression | IC.trap, 5, "Additional Mutator", itemType.trap),
 }
 
 usefulItemDict: dict[int, itemData] = {
@@ -83,7 +83,7 @@ def update_items(world: PAYDAY2World) -> None:
     progressionItemDict[3] = itemData(IC.progression, world.options.bots, "Extra Bot", itemType.progression)
     progressionItemDict[4] = itemData(IC.progression, world.options.saws, "OVE9000 Saw", itemType.progression)
 
-    trapItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * (world.options.final_difficulty - world.options.starting_difficulty), "Difficulty Increase", itemType.trap)
+    trapItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * world.options.final_difficulty, "Difficulty Increase", itemType.trap)
     trapItemDict[101] = itemData(IC.trap, world.options.mutator_traps, "Additional Mutator", itemType.trap)
 
     usefulItemDict[200] = itemData(IC.useful, world.options.primary_weapons, "Primary Weapon", itemType.weapon)
@@ -142,7 +142,3 @@ def create_all_items(world: PAYDAY2World) -> None:
     itemPool += [world.create_filler() for _ in range(fillerCount)]
 
     world.multiworld.itempool += itemPool
-
-    if world.options.starting_difficulty > 1:
-        for i in range(world.options.starting_difficulty):
-            world.push_precollected(world.create_item("Difficulty Increase"))

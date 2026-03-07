@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle, OptionSet, DefaultOnToggle
+from Options import Choice, PerGameCommonOptions, Range, Toggle, DefaultOnToggle
 
 
 class ScoreLocations(Range):
@@ -10,7 +10,7 @@ class ScoreLocations(Range):
 
     display_name = "Score Checks"
 
-    range_start = 15
+    range_start = 50
     range_end = 1000
     default = 100
 
@@ -179,27 +179,11 @@ class DeployablesCount(Range):
     range_end = 7
     default = 7
 
-class MinDiff(Choice):
-    """
-    This is the difficulty your run starts on.
-    Higher difficulties give a bigger score multiplier,
-    so raising this will speed up the early game.
-    """
-
-    display_name = "Starting Difficulty"
-
-    option_normal = 1
-    option_hard = 2
-    option_very_hard = 3
-    option_overkill = 4
-
-    default = 1
-
 class MaxDiff(Choice):
     """
-    This is the highest difficulty your run can reach.
+    The highest difficulty your run can reach.
     Higher difficulties give a bigger score multiplier,
-    so lowering this will slow the late game.
+    so lowering this can slow late game progression.
     """
 
     display_name = "Final Difficulty"
@@ -215,7 +199,7 @@ class DiffTraps(DefaultOnToggle):
     """
     Difficulty traps permanently increase the difficulty by 1 per trap collected,
     but also grant a score multiplier.
-    Difficulty traps will not bypass your maximum difficulty.
+    Difficulty traps will not bypass your final difficulty.
     """
 
     display_name = "Difficulty Traps"
@@ -258,7 +242,6 @@ class PAYDAY2Options(PerGameCommonOptions):
     secondary_weapons: SecondaryCount
     melee_weapons: MeleeCount
     throwables: ThrowableCount
-    starting_difficulty: MinDiff
     final_difficulty: MaxDiff
     difficulty_traps: DiffTraps
     mutator_traps: MutatorTraps
