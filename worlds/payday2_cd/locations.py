@@ -111,6 +111,8 @@ def create_score_locations(world: PAYDAY2World) -> None:
             world.set_rule(location, Has("Extra Bot", bots))
             #print(bots)
 
+        world.set_rule(location, Has("Perma-Perk", i // (world.options.score_checks // 8)))
+
         if i > 1:
             prevRegion.connect(region, f"{i} points")
         prevRegion = region
