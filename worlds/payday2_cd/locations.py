@@ -36,8 +36,8 @@ def create_and_connect_regions(world: PAYDAY2World) -> None:
     safehouseT3 = world.get_region("Safe House Tier 3")
     itemsForGoal = (60 - world.options.starting_time) / world.options.time_bonus
 
-    world.create_entrance(crimenet, safehouseT2, HasAllCounts({"24 Coins": 12, "Time Bonus": itemsForGoal // 3}), "276 Coins")
-    world.create_entrance(crimenet, safehouseT3, HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * itemsForGoal // 3}), "828 Coins")
+    world.create_entrance(crimenet, safehouseT2, HasAllCounts({"24 Coins": 12, "Time Bonus": itemsForGoal // 3}), "276 Coins") #12
+    world.create_entrance(crimenet, safehouseT3, HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * itemsForGoal // 3}), "828 Coins") #35
 
 def create_all_locations(world: PAYDAY2World) -> None:
     create_score_locations(world)
@@ -69,6 +69,12 @@ def create_score_locations(world: PAYDAY2World) -> None:
         location = PAYDAY2Location(world.player, locName, locId, region)
         region.locations.append(location)
 
+        diffTraps = 0
+        if world.options.difficulty_traps:
+            diffTraps = i // (world.options.score_checks // (world.options.difficulty_traps * world.options.final_difficulty - 1))
+        mutatorTraps = i // (world.options.score_checks // world.options.mutator_traps)
+        bots = i // (world.options.score_checks // world.options.bots)
+
         if i == 1:
             crimenet.connect(region, "Start run")
 
@@ -77,41 +83,32 @@ def create_score_locations(world: PAYDAY2World) -> None:
         #    world.set_rule(location, Has("Time Bonus", timeBonuses))
         #    print(f"{location}: {timeBonuses}")
 
-        elif 1.5 * (world.options.score_checks / itemsForGoal) <= i < 4 * (world.options.score_checks / itemsForGoal):
-            timeBonuses = max(i // (world.options.score_checks // itemsForGoal) - 1, 1)
-            world.set_rule(location, Has("Time Bonus", timeBonuses))
-            #print(f"{location}: {timeBonuses}")
-            requiredTimeBonuses.update({triangle(i): timeBonuses})
-
-        elif 4 * (world.options.score_checks / itemsForGoal) <= i < world.options.score_checks:
-            timeBonuses = i * 2 // (world.options.score_checks // itemsForGoal) - 5
-            world.set_rule(location, Has("Time Bonus", timeBonuses))
-            #print(f"{location}: {timeBonuses}")
-            requiredTimeBonuses.update({triangle(i): timeBonuses})
-        elif i == world.options.score_checks:
-            world.set_rule(location, Has("Time Bonus", 5))
-            #print(f"{location}: {5}")
-            requiredTimeBonuses.update({triangle(i): 5})
         else:
-            requiredTimeBonuses.update({triangle(i): 0})
+            if 1.5 * (world.options.score_checks / itemsForGoal) <= i < 4 * (world.options.score_checks / itemsForGoal):
+                timeBonuses = max(i // (world.options.score_checks // itemsForGoal) - 1, 1)
+                requiredTimeBonuses.update({triangle(i): timeBonuses})
 
+            elif 4 * (world.options.score_checks / itemsForGoal) <= i < world.options.score_checks:
+                timeBonuses = i * 2 // (world.options.score_checks // itemsForGoal) - 5
+                requiredTimeBonuses.update({triangle(i): timeBonuses})
 
-        if world.options.difficulty_traps:
-            diffTraps = i // (world.options.score_checks // (world.options.difficulty_traps * world.options.final_difficulty - 1))
-            world.set_rule(location, Has("Difficulty Increase", diffTraps))
-            #print(diffTraps)
+            elif i == world.options.score_checks:
+                timeBonuses = 5
+                requiredTimeBonuses.update({triangle(i): 5})
 
-        if world.options.mutator_traps > 0:
-            mutatorTraps = i // (world.options.score_checks // world.options.mutator_traps)
-            world.set_rule(location, Has("Additional Mutator", mutatorTraps))
-            #print(mutatorTraps)
+            else:
+                timeBonuses = 0
+                requiredTimeBonuses.update({triangle(i): 0})
 
-        if world.options.bots > 0:
-            bots = i // (world.options.score_checks // world.options.bots)
-            world.set_rule(location, Has("Extra Bot", bots))
-            #print(bots)
+            #print(f"{location}: {timeBonuses}")
+            #print(f"{location}: \n{timeBonuses}\n{diffTraps}\n{mutatorTraps}\n{bots}\n{i // (world.options.score_checks // 8)}")
+            locationRule = HasAllCounts({"Time Bonus": timeBonuses,
+                                         "Difficulty Increase": diffTraps,
+                                         "Additional Mutator": mutatorTraps,
+                                         "Extra Bot": bots,
+                                         "Perma-Perk": i // (world.options.score_checks // 8)})
 
-        world.set_rule(location, Has("Perma-Perk", i // (world.options.score_checks // 8)))
+            world.set_rule(location, locationRule)
 
         if i > 1:
             prevRegion.connect(region, f"{i} points")

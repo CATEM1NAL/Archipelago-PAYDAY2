@@ -19,11 +19,8 @@ progressionItemDict: dict[int, itemData] = {
     7: itemData(IC.progression_deprioritized_skip_balancing, 35, "24 Coins", itemType.progression),
     8: itemData(IC.progression, 2, "Nine Lives", itemType.progression),
     9: itemData(IC.progression, 8, "Perma-Perk", itemType.progression),
-}
-
-trapItemDict: dict[int, itemData] = {
-    100: itemData(IC.progression | IC.trap, 5, "Difficulty Increase", itemType.trap),
-    101: itemData(IC.progression | IC.trap, 5, "Additional Mutator", itemType.trap),
+    100: itemData(IC.progression, 5, "Difficulty Increase", itemType.trap),
+    101: itemData(IC.progression, 5, "Additional Mutator", itemType.trap),
 }
 
 usefulItemDict: dict[int, itemData] = {
@@ -34,8 +31,8 @@ usefulItemDict: dict[int, itemData] = {
     204: itemData(IC.filler, 5, "Throwable", itemType.weapon),
     205: itemData(IC.useful, 6, "Armor", itemType.unlock),
     206: itemData(IC.useful, 7, "Deployable", itemType.unlock),
-    207: itemData(IC.useful, 10, "Skill", itemType.filler),
-    208: itemData(IC.useful, 9, "Perk", itemType.filler),
+    207: itemData(IC.useful, 5, "Skill", itemType.filler),
+    208: itemData(IC.useful, 8, "Perk", itemType.filler),
     209: itemData(IC.filler, 10, "Stat Boost", itemType.filler),
 }
 
@@ -58,7 +55,6 @@ fillerLimitDict: dict[int, int] = {
 
 itemDict: dict[int, itemData] = {}
 itemDict.update(progressionItemDict)
-itemDict.update(trapItemDict)
 itemDict.update(usefulItemDict)
 itemDict.update(fillerItemDict)
 
@@ -84,8 +80,8 @@ def update_items(world: PAYDAY2World) -> None:
     progressionItemDict[3] = itemData(IC.progression, world.options.bots, "Extra Bot", itemType.progression)
     progressionItemDict[4] = itemData(IC.progression, world.options.saws, "OVE9000 Saw", itemType.progression)
 
-    trapItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * world.options.final_difficulty, "Difficulty Increase", itemType.trap)
-    trapItemDict[101] = itemData(IC.trap, world.options.mutator_traps, "Additional Mutator", itemType.trap)
+    progressionItemDict[100] = itemData(IC.trap, world.options.difficulty_traps * (world.options.final_difficulty - 1), "Difficulty Increase", itemType.trap)
+    progressionItemDict[101] = itemData(IC.trap, world.options.mutator_traps, "Additional Mutator", itemType.trap)
 
     usefulItemDict[200] = itemData(IC.useful, world.options.primary_weapons, "Primary Weapon", itemType.weapon)
     fillerLimitDict[200] -= world.options.primary_weapons
@@ -126,10 +122,8 @@ def create_all_items(world: PAYDAY2World) -> None:
     #Create progression items
     itemPool: list[PAYDAY2Item] = []
     for itemId, item in progressionItemDict.items():
-        for i in range(item.count):
-            itemPool.append(world.create_item(item.name))
-
-    for itemId, item in trapItemDict.items():
+        #if item.name == "24 Coins":
+        #    continue
         for i in range(item.count):
             itemPool.append(world.create_item(item.name))
 
