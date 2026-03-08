@@ -16,7 +16,7 @@ progressionItemDict: dict[int, itemData] = {
     4: itemData(IC.progression, 2, "OVE9000 Saw", itemType.progression),
     5: itemData(IC.progression, 1, "ECM", itemType.progression),
     6: itemData(IC.progression, 1, "Trip Mines", itemType.progression),
-    7: itemData(IC.progression_deprioritized_skip_balancing, 35, "24 Coins", itemType.progression),
+    7: itemData(IC.progression_deprioritized_skip_balancing, 40, "24 Coins", itemType.progression),
     8: itemData(IC.progression, 2, "Nine Lives", itemType.progression),
     9: itemData(IC.progression, 8, "Perma-Perk", itemType.progression),
     100: itemData(IC.trap, 5, "Difficulty Increase", itemType.trap),
@@ -92,6 +92,7 @@ def update_items(world: PAYDAY2World) -> None:
                world.options.throwables, #204
                world.options.armor_unlocks, #205
                world.options.deployables] #206
+
     for i, opt in enumerate(optList):
         usefulItemDict[200+i] = itemData(itemDict[200+i][0], opt.value, *itemDict[200+i][2:])
         fillerLimitDict[200+i] -= opt
@@ -135,8 +136,6 @@ def create_all_items(world: PAYDAY2World) -> None:
     #Create progression items
     itemPool: list[PAYDAY2Item] = []
     for itemId, item in progressionItemDict.items():
-        #if item.name == "24 Coins":
-        #    continue
         for i in range(item.count):
             itemPool.append(world.create_item(item.name))
 

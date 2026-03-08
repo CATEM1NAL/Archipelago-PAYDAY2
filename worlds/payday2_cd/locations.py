@@ -16,9 +16,9 @@ LOCATION_NAME_TO_ID = { f"{triangle(i)} Crime Points" : i for i in range(1, 1001
 
 safehouseRooms = ["Scarface's Room", "Dallas' Office", "Hoxton's Files", "Clover's Surveillance Center",
                  "Duke's Gallery", "Houston's Workshop", "Sydney's Studio", "Rust's Corner", "Joy's Van",
-                    "h3h3", "Bonnie's Gambling Den", "Jiro's Lounge", "Common Rooms", "Jimmy's Bar",
+                     "h3h3", "Bonnie's Gambling Den", "Jiro's Lounge", "Common Rooms", "Jimmy's Bar",
                "Sangres' Cave", "Chains' Weapons Workshop", "Bodhi's Surfboard Workshop", "Jacket's Hangout",
-                "Sokol's Hockey Gym", "Dragan's Gym", "Vault", "Wolf's Workshop", "Wick's Shooting Range"]
+                 "Sokol's Hockey Gym", "Dragan's Gym", "Vault", "Wolf's Workshop", "Wick's Shooting Range"]
 
 LOCATION_NAME_TO_ID.update({f"{room} - Tier 2": key+1001 for key, room in enumerate(safehouseRooms)})
 LOCATION_NAME_TO_ID.update({f"{room} - Tier 3": key+1001+len(safehouseRooms) for key, room in enumerate(safehouseRooms)})
@@ -36,8 +36,8 @@ def create_and_connect_regions(world: PAYDAY2World) -> None:
     safehouseT3 = world.get_region("Safe House Tier 3")
     itemsForGoal = (60 - world.options.starting_time) / world.options.time_bonus
 
-    world.create_entrance(crimenet, safehouseT2, HasAllCounts({"24 Coins": 12, "Time Bonus": itemsForGoal // 3}), "276 Coins") #12
-    world.create_entrance(crimenet, safehouseT3, HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * itemsForGoal // 3}), "828 Coins") #35
+    world.create_entrance(crimenet, safehouseT2, HasAllCounts({"24 Coins": 12, "Time Bonus": itemsForGoal // 3}), "276 Coins")
+    world.create_entrance(crimenet, safehouseT3, HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * itemsForGoal // 3}), "828 Coins")
 
 def create_all_locations(world: PAYDAY2World) -> None:
     create_score_locations(world)
@@ -70,10 +70,15 @@ def create_score_locations(world: PAYDAY2World) -> None:
         region.locations.append(location)
 
         diffTraps = 0
+        mutatorTraps = 0
+        bots = 0
+
         if world.options.difficulty_traps:
             diffTraps = i // (world.options.score_checks // (world.options.difficulty_traps * world.options.final_difficulty - 1))
-        mutatorTraps = i // (world.options.score_checks // world.options.mutator_traps)
-        bots = i // (world.options.score_checks // world.options.bots)
+        if world.options.mutator_traps > 0:
+            mutatorTraps = i // (world.options.score_checks // world.options.mutator_traps)
+        if world.options.bots > 0:
+            bots = i // (world.options.score_checks // world.options.bots)
 
         if i == 1:
             crimenet.connect(region, "Start run")
@@ -133,7 +138,9 @@ def create_score_locations(world: PAYDAY2World) -> None:
                                  "Additional Mutator": world.options.mutator_traps.value,
                                  "Extra Bot": world.options.bots.value,
                                  "Perma-Perk": 8})
+
     world.set_rule(location, locationRule)
+    #world.set_rule(location, Has("Time Bonus", itemsForGoal))
     region.locations.append(location)
     crimenet.connect(region, f"Final Heist")
 

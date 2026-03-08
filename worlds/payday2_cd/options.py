@@ -11,7 +11,7 @@ class ScoreLocations(Range):
     display_name = "Score Checks"
 
     range_start = 50
-    range_end = 1000
+    range_end = 200
     default = 100
 
 class StartingTime(Range):
