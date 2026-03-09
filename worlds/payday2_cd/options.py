@@ -36,7 +36,7 @@ class TimeUpgrades(Range):
 
     range_start = 0
     range_end = 99
-    default = 5
+    default = 9
 
 class TimeUpgradeStrength(Range):
     """
@@ -77,8 +77,8 @@ class AdditionalSaw(Range):
 class NineLives(Range):
     """
     How many Nine Lives upgrades are available.
-    Nine Lives Lv1: +1 extra down.
-    Nine Lives Lv2: +3 extra downs.
+    Nine Lives Lv1: 1 extra down.
+    Nine Lives Lv2: 3 extra downs.
     """
 
     display_name = "Nine Lives"
@@ -112,7 +112,7 @@ class AkimboCount(Range):
 
     range_start = 0
     range_end = 57
-    default = 10
+    default = 5
 
 class SecondaryCount(Range):
     """

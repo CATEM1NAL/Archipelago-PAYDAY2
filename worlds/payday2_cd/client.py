@@ -251,7 +251,7 @@ class PAYDAY2Context(CommonContext):
 
             if item.name == "Time Bonus":
                 self.timeBonusReceived += 1
-                self.scribble.writeVariable("scorecap", self.scoreCaps[self.timeBonusReceived])
+                self.scribble.writeVariable("score_cap", self.scoreCaps[self.timeBonusReceived])
 
     def getN(self, score):
         return math.floor((math.sqrt(1 + 8 * (score)) - 1) / 2)

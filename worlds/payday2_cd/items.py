@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .world import PAYDAY2World
 
 progressionItemDict: dict[int, itemData] = {
-    1: itemData(IC.progression | IC.useful, 5, "Time Bonus", itemType.progression),
+    1: itemData(IC.progression | IC.useful, 9, "Time Bonus", itemType.progression),
     2: itemData(IC.progression, 2, "Drill Sawgeant", itemType.progression),
     3: itemData(IC.progression, 3, "Extra Bot", itemType.progression),
     4: itemData(IC.progression, 2, "OVE9000 Saw", itemType.progression),
@@ -19,6 +19,7 @@ progressionItemDict: dict[int, itemData] = {
     7: itemData(IC.progression_deprioritized_skip_balancing, 40, "24 Coins", itemType.progression),
     8: itemData(IC.progression, 2, "Nine Lives", itemType.progression),
     9: itemData(IC.progression, 8, "Perma-Perk", itemType.progression),
+    10: itemData(IC.progression, 8, "Perma-Skill", itemType.progression),
     100: itemData(IC.trap, 5, "Difficulty Increase", itemType.trap),
     101: itemData(IC.trap, 5, "Additional Mutator", itemType.trap),
 }
@@ -32,7 +33,7 @@ usefulItemDict: dict[int, itemData] = {
     205: itemData(IC.useful, 6, "Armor", itemType.unlock),
     206: itemData(IC.useful, 7, "Deployable", itemType.unlock),
     207: itemData(IC.useful, 5, "Skill", itemType.filler),
-    208: itemData(IC.useful, 8, "Perk", itemType.filler),
+    208: itemData(IC.useful, 5, "Perk", itemType.filler),
     209: itemData(IC.filler, 10, "Stat Boost", itemType.filler),
 }
 
