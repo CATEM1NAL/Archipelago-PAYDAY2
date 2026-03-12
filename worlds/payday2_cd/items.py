@@ -32,8 +32,8 @@ usefulItemDict: dict[int, itemData] = {
     204: itemData(IC.filler, 5, "Throwable", itemType.weapon),
     205: itemData(IC.useful, 6, "Armor", itemType.unlock),
     206: itemData(IC.useful, 7, "Deployable", itemType.unlock),
-    207: itemData(IC.useful, 5, "Skill", itemType.filler),
-    208: itemData(IC.useful, 5, "Perk", itemType.filler),
+    207: itemData(IC.useful, 8, "Skill", itemType.filler),
+    208: itemData(IC.useful, 8, "Perk", itemType.filler),
     209: itemData(IC.filler, 10, "Stat Boost", itemType.filler),
 }
 
@@ -49,9 +49,9 @@ fillerLimitDict: dict[int, int] = {
     204: 5,
     205: 6,
     206: 7,
-    207: 115,
-    208: 179,
-    209: 150
+    207: 45,
+    208: 52,
+    209: 100
 }
 
 itemDict: dict[int, itemData] = {}
@@ -73,11 +73,13 @@ def update_items(world: PAYDAY2World) -> None:
     if numExtraTime < itemsForGoal:
         numExtraTime = math.ceil(itemsForGoal)
         print(f"Increased {world.player_name}'s Extra Time items from {world.options.time_upgrades} to {numExtraTime} for world to be playable.")
+        world.options.time_upgrades = numExtraTime
     elif numExtraTime > timeItemCap:
         numExtraTime = timeItemCap
         print(f"Reduced {world.player_name}'s Extra Time items from {world.options.time_upgrades} to {numExtraTime} to not exceed 100 minutes.")
+        world.options.time_upgrades = numExtraTime
 
-    progressionItemDict[1] = itemData(itemDict[1][0], numExtraTime, *itemDict[1][2:])
+    progressionItemDict[1] = itemData(itemDict[1][0], world.options.time_upgrades, *itemDict[1][2:])
     progressionItemDict[3] = itemData(itemDict[3][0], world.options.bots, *itemDict[3][2:])
     progressionItemDict[4] = itemData(itemDict[4][0], world.options.saws, *itemDict[4][2:])
 

@@ -44,7 +44,8 @@ def create_all_locations(world: PAYDAY2World) -> None:
 
 def create_score_locations(world: PAYDAY2World) -> None:
     # Create regions, assign a location to each region, chain entrances together
-    itemsForGoal = (60 - world.options.starting_time) / world.options.time_bonus
+
+    itemsForGoal = (60 - world.timeBonusStrength) / world.maxTimeBonuses
 
     for i in range(2,4):
         safehouse = world.get_region(f"Safe House Tier {i}")
@@ -78,8 +79,7 @@ def create_score_locations(world: PAYDAY2World) -> None:
             diffTraps = i // (world.options.score_checks // (world.options.difficulty_traps * world.options.final_difficulty - 1))
         if world.options.mutator_traps > 0:
             mutatorTraps = i // (world.options.score_checks // world.options.mutator_traps)
-        if world.options.bots > 0:
-            bots = i // (world.options.score_checks // world.options.bots)
+        bots = i // (world.options.score_checks // world.options.biglobby)
 
         if i == 1:
             crimenet.connect(region, "Start run")
@@ -90,22 +90,21 @@ def create_score_locations(world: PAYDAY2World) -> None:
         #    print(f"{location}: {timeBonuses}")
 
         else:
-            if world.options.time_upgrades > 0:
-                if 1.5 * (world.options.score_checks / itemsForGoal) <= i < 4 * (world.options.score_checks / itemsForGoal):
-                    timeBonuses = max(i // (world.options.score_checks // itemsForGoal) - 1, 1)
-                    requiredTimeBonuses.update({triangle(i): timeBonuses})
+            if 1.5 * (world.options.score_checks / itemsForGoal) <= i < 4 * (world.options.score_checks / itemsForGoal):
+                timeBonuses = max(i // (world.options.score_checks // itemsForGoal) - 1, 1)
+                requiredTimeBonuses.update({triangle(i): timeBonuses})
 
-                elif 4 * (world.options.score_checks / itemsForGoal) <= i < world.options.score_checks:
-                    timeBonuses = i * 2 // (world.options.score_checks // itemsForGoal) - 5
-                    requiredTimeBonuses.update({triangle(i): timeBonuses})
+            elif 4 * (world.options.score_checks / itemsForGoal) <= i < world.options.score_checks:
+                timeBonuses = i * 2 // (world.options.score_checks // itemsForGoal) - 5
+                requiredTimeBonuses.update({triangle(i): timeBonuses})
 
-                elif i == world.options.score_checks:
-                    timeBonuses = 5
-                    requiredTimeBonuses.update({triangle(i): 5})
+            elif i == world.options.score_checks:
+                timeBonuses = 5
+                requiredTimeBonuses.update({triangle(i): 5})
 
-                else:
-                    timeBonuses = 0
-                    requiredTimeBonuses.update({triangle(i): 0})
+            else:
+                timeBonuses = 0
+                requiredTimeBonuses.update({triangle(i): 0})
 
             #print(f"{location}: {timeBonuses}")
             #print(f"{location}: \n{timeBonuses}\n{diffTraps}\n{mutatorTraps}\n{bots}\n{i // (world.options.score_checks // 8)}")
@@ -140,7 +139,7 @@ def create_score_locations(world: PAYDAY2World) -> None:
     locationRule = HasAllCounts({"Time Bonus": itemsForGoal,
                                  "Difficulty Increase": world.options.difficulty_traps * (world.options.final_difficulty - 1),
                                  "Additional Mutator": world.options.mutator_traps.value,
-                                 "Extra Bot": world.options.bots.value,
+                                 "Extra Bot": world.options.biglobby.value,
                                  "Perma-Perk": 8,
                                  "Perma-Skill": 8})
 

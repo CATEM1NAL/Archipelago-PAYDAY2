@@ -1,12 +1,15 @@
 from collections.abc import Mapping
 from typing import Any, ClassVar
 import settings
-from rule_builder.cached_world import CachedRuleBuilderWorld
 
-from worlds.AutoWorld import World
+from worlds.AutoWorld import World, WebWorld
 
 from . import items, locations
 from . import options as payday2_options
+
+class PAYDAY2WebWorld(WebWorld):
+    game = "PAYDAY 2: Criminal Dawn"
+    option_groups = payday2_options.option_groups
 
 class PAYDAY2Settings(settings.Group):
     class PAYDAY2Path(settings.LocalFilePath):
@@ -17,7 +20,7 @@ class PAYDAY2Settings(settings.Group):
 
 class PAYDAY2World(World):
     """
-    PAYDAY 2 is a shooty bang bang game.
+    PAYDAY 2: Criminal Dawn is a roguelite conversion for PAYDAY 2 that was built to support Archipelago.
     """
     game = "PAYDAY 2: Criminal Dawn"
     topology_present = False
@@ -26,11 +29,26 @@ class PAYDAY2World(World):
     options: payday2_options.PAYDAY2Options
     settings: ClassVar[PAYDAY2Settings]
 
+    web = PAYDAY2WebWorld()
+
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
     locationToScoreCap = []
 
     origin_region_name = "Crime.net"
+
+    def generate_early(self) -> None:
+        if self.options.progression_pacing == "quick":
+            self.timeBonusStrength = 20
+            self.maxTimeBonuses = World.random.randint(4, 5)
+
+        elif self.options.progression_pacing == "standard":
+            self.timeBonusStrength = 10
+            self.maxTimeBonuses = World.random.randint(7, 9)
+
+        elif self.options.progression_pacing == "glacial":
+            self.timeBonusStrength = 5
+            self.maxTimeBonuses = World.random.randint(15, 19)
 
     def create_regions(self) -> None:
         locations.create_and_connect_regions(self)
