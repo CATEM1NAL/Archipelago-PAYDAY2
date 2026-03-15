@@ -8,19 +8,16 @@ class GamePace(Choice):
     Determines the speed at which the world will be played.
 
     Quick: Start with 20 minutes, gain 20 with each time bonus.
-    4 or 5 time bonuses will generate, and your spheres will be large.
+    4 or 5 time bonuses will generate, and you will have a few large spheres.
     A full playthrough can take around ?? hours.
 
     Standard: Start with 10 minutes, gain 10 with each time bonus.
-    7 to 9 time bonuses will generate, and your spheres will be moderately sized.
+    7 to 9 time bonuses will generate, and you will have a moderate number of moderate spheres.
     A full playthrough can take around ?? hours.
 
     Glacial: Start with 5 minutes, gain 5 with each time bonus.
-    15 to 19 time bonuses will generate, and your spheres will be small.
+    15 to 19 time bonuses will generate, and you will have a lot of small spheres.
     A full playthrough can take around ?? hours.
-
-    Logic assumes victory is possible after reaching 60 minutes,
-    though enough time bonuses will always generate to reach 80.
     """
 
     display_name = "Progression Pacing"

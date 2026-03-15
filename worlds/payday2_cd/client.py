@@ -40,11 +40,6 @@ class scribble:
         with open(self.path, "w+") as f:
             json.dump(self.data, f)
 
-    def writeSlotData(self, slotData, key):
-        self.data[key] = slotData
-        with open(self.path, "w+") as f:
-            json.dump(self.data, f)
-
     def writeVariable(self, key, value):
         self.data[key] = value
         with open(self.path, "w+") as f:
@@ -60,14 +55,20 @@ class scrungle:
     async def watch(self):
         modSave = load_json_file(self.path)
         prevScore = 0
+        prevHeistsWon = 1
+        prevHostHeistsWon = 1
         prevRun = -1
         lastChatTime = None
         lastModTime = os.path.getmtime(self.path) if os.path.isfile(self.path) else 0.0
         lastModTime = 0
         deathMsgs = ["left their favourite cassette in the escape car.",
-                     "got caught.",
+                     "will never hear those songs again.",
+                     "needs to get their head examined.",
                      "learned that crime doesn't pay.",
-                     "watched dawn turn to dusk."]
+                     "watched dawn turn to dusk.",
+                     "doesn't have a razor mind.",
+                     "got caught up in that Kataru business.",
+                     "was foiled at the hands of Commissioner Garrett."]
 
         print(f"Scrungle is watching {self.path}...")
 
@@ -81,28 +82,40 @@ class scrungle:
 
                         try:
                             modSave = load_json_file(self.path)
-                            score = modSave["game"]["score"] / 100
+                            score = modSave["game"]["score"]
                             run = modSave["game"]["run"]
+                            heistsWon = len(modSave["game"]["heists"])
+                            hostHeistsWon = modSave["game"]["host_heists"]
 
                             # Has the game been won?
                             try:
                                 modSave["game"]["victory"]
                                 await self.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
-                            except:
-                                pass
+                            except: pass
 
                             # Not in the except so people that play without autorelease can continue getting checks
                             if score > prevScore:
                                 await self.context.score_check(score)
                                 prevScore = score
 
-                            if prevRun == -1:
-                                prevRun = run
+                            if heistsWon > prevHeistsWon:
+                                for i in range (1, heistsWon):
+                                    print(f"Heist {i} Completed (host)")
+                                    heist = LOCATION_NAME_TO_ID[f"Heist {i} Completed"]
+                                    await self.context.check_locations([heist])
+                                prevHeistsWon = heistsWon
 
+                            if hostHeistsWon > prevHeistsWon:
+                                for i in range(1, hostHeistsWon):
+                                    print(f"Heist {i} Completed (peer)")
+                                    heist = LOCATION_NAME_TO_ID[f"Heist {i} Completed"]
+                                    await self.context.check_locations([heist])
+                                prevHeistsWon = hostHeistsWon
+
+                            if prevRun == -1: prevRun = run
                             # Send deathlink
                             if prevRun < run:
                                 prevRun = run
-
                                 await self.context.send_death(f"{self.context.player_names[self.context.slot]} {random.choice(deathMsgs)}")
 
                         except (FileNotFoundError, json.decoder.JSONDecodeError) as e:
@@ -183,7 +196,7 @@ class PAYDAY2Context(CommonContext):
             Utils.async_start(self.disconnect())
 
         # Check seed
-        self.scribble.writeSlotData(args['slot_data']['seed_name'], "seed")
+        self.scribble.writeVariable("seed", args['slot_data']['seed_name'])
         print(f"Wrote seed to client file")
 
         try:
@@ -222,15 +235,16 @@ class PAYDAY2Context(CommonContext):
         self.scoreCaps = args['slot_data']["score_caps"]
         self.timerStrength = args['slot_data']['timer_strength']
         self.finalDifficulty = args['slot_data']['final_difficulty']
+        self.diffScale = args['slot_data']['scaling_count']
 
-        self.scribble.writeSlotData(self.timerStrength, "timer_strength")
-        self.scribble.writeSlotData(self.finalDifficulty, "max_diff")
+        self.scribble.writeVariable("timer_strength", self.timerStrength)
+        self.scribble.writeVariable("max_diff", self.finalDifficulty)
+        self.scribble.writeVariable("score_cap", self.scoreCaps[self.timeBonusReceived])
+        self.scribble.writeVariable("scaling_count", self.diffScale)
 
         self.deathLinkEnabled = args['slot_data']["death_link"]
         if self.deathLinkEnabled:
             asyncio.create_task(self.update_death_link(True))
-
-        self.scribble.run(self.scoreCaps[0])
 
     def on_received_items(self, args: dict):
         # for entry in self.items_received:

@@ -1,6 +1,7 @@
 from collections.abc import Mapping
 from typing import Any, ClassVar
 import settings
+from rule_builder.cached_world import CachedRuleBuilderWorld
 
 from worlds.AutoWorld import World, WebWorld
 
@@ -77,5 +78,6 @@ class PAYDAY2World(World):
         args["server_version"] = self.world_version.as_simple_string()
         args["seed_name"] = f"cd_{self.multiworld.seed_name}"
         args["score_caps"] = self.locationToScoreCap
+        args["scaling_count"] = ((60 - self.timeBonusStrength) / self.timeBonusStrength) + self.botCount + 16
 
         return args
