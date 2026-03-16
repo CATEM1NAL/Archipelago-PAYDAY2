@@ -57,8 +57,7 @@ class scrungle:
         prevScore = 0
         prevHeistsWon = 0
         prevRun = -1
-        lastChatTime = None
-        lastModTime = os.path.getmtime(self.path) if os.path.isfile(self.path) else 0.0
+        lastChatTime = math.floor(time.time())
         lastModTime = 0
         deathMsgs = ["left their favourite cassette in the escape car.",
                      "will never hear those songs again.",
