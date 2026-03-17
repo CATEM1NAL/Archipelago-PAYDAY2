@@ -7,17 +7,18 @@ class GamePace(Choice):
     """
     Determines the speed at which the world will be played.
 
-    Quick: Start with 20 minutes, gain 20 with each time bonus.
-    4 or 5 time bonuses will generate, and you will have a few large spheres.
-    A full playthrough can take around ?? hours.
+    QUICK: Start with 20 minutes, gain 20 with each time bonus.
+    4 or 5 time bonuses will generate, and you will have larger spheres.
+    A full playthrough can take around ?? hours with 100 score checks.
 
-    Standard: Start with 10 minutes, gain 10 with each time bonus.
-    7 to 9 time bonuses will generate, and you will have a moderate number of moderate spheres.
-    A full playthrough can take around ?? hours.
+    STANDARD: Start with 10 minutes, gain 10 with each time bonus.
+    7 to 9 time bonuses will generate, and you will have decently sized spheres.
+    A full playthrough can take around ?? hours with 100 score checks.
 
-    Glacial: Start with 5 minutes, gain 5 with each time bonus.
-    15 to 19 time bonuses will generate, and you will have a lot of small spheres.
-    A full playthrough can take around ?? hours.
+    GLACIAL: Start with 5 minutes, gain 5 with each time bonus.
+    15 to 19 time bonuses will generate, and you will have smaller spheres.
+    Increasing the number of score checks to at least 150 is recommended.
+    A full playthrough can take around ?? hours with 150 score checks.
     """
 
     display_name = "Progression Pacing"
@@ -35,15 +36,15 @@ class ScoreLocations(Range):
 
     display_name = "Score Checks"
 
-    range_start = 50
+    range_start = 100
     range_end = 200
     default = 100
 
 class BotCount(Toggle):
     """
     Whether BigLobby is installed.
-    If true then more than 3 bots are allowed to generate,
-    however the game may become less stable:
+    Setting this to true increases the number of extra bots from 3
+    to a random number between 4 and 21, however the game may be less stable:
     https://modworkshop.net/mod/21582
     """
 
