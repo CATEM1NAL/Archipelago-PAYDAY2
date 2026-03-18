@@ -1,6 +1,6 @@
 from worlds.LauncherComponents import Component, Type, components, launch, icon_paths
 
-from .world import PAYDAY2World as PAYDAY2World
+from .world import CrimDawnWorld as CrimDawnWorld
 
 def run_client(*args: str) -> None:
     from .client import launch_client

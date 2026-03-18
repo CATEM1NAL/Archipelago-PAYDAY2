@@ -7,7 +7,7 @@ from BaseClasses import Item, ItemClassification as IC
 from .item_types import itemData, itemType
 
 if TYPE_CHECKING:
-    from .world import PAYDAY2World
+    from .world import CrimDawnWorld
 
 progressionItemDict: dict[int, itemData] = {
     1: itemData(IC.progression | IC.useful, 0, "Time Bonus", itemType.progression),
@@ -66,10 +66,10 @@ itemDict.update(infFillerItemDict)
 ITEM_NAME_TO_ID = {item.name: key for key, item in itemDict.items()}
 itemKeys = []
 
-class PAYDAY2Item(Item):
+class CrimDawnItem(Item):
     game = "PAYDAY 2: Criminal Dawn"
 
-def update_items(world: PAYDAY2World) -> None:
+def update_items(world: CrimDawnWorld) -> None:
     progressionItemDict[1] = itemData(itemDict[1][0], world.maxTimeBonuses, *itemDict[1][2:])
     print(f"{world.player_name} has {world.maxTimeBonuses} Time Bonus items.")
     progressionItemDict[3] = itemData(itemDict[3][0], world.botCount, *itemDict[3][2:])
@@ -85,7 +85,7 @@ def update_items(world: PAYDAY2World) -> None:
         fillerItemDict[300+i] = itemData(itemDict[300+i][0], opt.value, *itemDict[300+i][2:])
         fillerLimitDict[300+i] -= opt
 
-def get_random_filler_item_name(world: PAYDAY2World) -> str:
+def get_random_filler_item_name(world: CrimDawnWorld) -> str:
     fillerType = world.random.choice(["weapon", "upgrade"])
     if fillerType == "weapon": item = fillerItemDict[world.random.randint(300, 304)]
     elif fillerType == "upgrade": item = fillerItemDict[world.random.randint(305, 307)]
@@ -97,9 +97,9 @@ def get_random_filler_item_name(world: PAYDAY2World) -> str:
 
     return item.name
 
-def create_all_items(world: PAYDAY2World) -> None:
+def create_all_items(world: CrimDawnWorld) -> None:
     #Create progression items
-    itemPool: list[PAYDAY2Item] = []
+    itemPool: list[CrimDawnItem] = []
     for itemId, item in progressionItemDict.items():
         for i in range(item.count):
             itemPool.append(world.create_item(item.name))

@@ -5,31 +5,31 @@ import settings
 from worlds.AutoWorld import World, WebWorld
 
 from . import items, locations
-from . import options as payday2_options
+from . import options as crimdawn_options
 
-class PAYDAY2WebWorld(WebWorld):
+class CrimDawnWebWorld(WebWorld):
     game = "PAYDAY 2: Criminal Dawn"
-    option_groups = payday2_options.option_groups
+    option_groups = crimdawn_options.option_groups
 
-class PAYDAY2Settings(settings.Group):
+class CrimDawnSettings(settings.Group):
     class PAYDAY2Path(settings.LocalFilePath):
         description = "payday2_win32_release.exe (.../steamapps/common/PAYDAY 2)"
         is_exe = True
 
     payday2_path: PAYDAY2Path = PAYDAY2Path("C:/Program Files (x86)/Steam/steamapps/common/PAYDAY 2/payday2_win32_release.exe")
 
-class PAYDAY2World(World):
+class CrimDawnWorld(World):
     """
     PAYDAY 2: Criminal Dawn is a roguelite conversion for PAYDAY 2 that was built to support Archipelago.
     """
     game = "PAYDAY 2: Criminal Dawn"
     topology_present = False
 
-    options_dataclass = payday2_options.PAYDAY2Options
-    options: payday2_options.PAYDAY2Options
-    settings: ClassVar[PAYDAY2Settings]
+    options_dataclass = crimdawn_options.CrimDawnOptions
+    options: crimdawn_options.CrimDawnOptions
+    settings: ClassVar[CrimDawnSettings]
 
-    web = PAYDAY2WebWorld()
+    web = CrimDawnWebWorld()
 
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
@@ -61,9 +61,9 @@ class PAYDAY2World(World):
         items.update_items(self)
         items.create_all_items(self)
 
-    def create_item(self, name: str) -> items.PAYDAY2Item:
+    def create_item(self, name: str) -> items.CrimDawnItem:
         itemId: int = items.ITEM_NAME_TO_ID[name]
-        return items.PAYDAY2Item(name, items.itemDict[itemId].classification, itemId, player=self.player)
+        return items.CrimDawnItem(name, items.itemDict[itemId].classification, itemId, player=self.player)
 
     def get_filler_item_name(self) -> str:
         return items.get_random_filler_item_name(self)

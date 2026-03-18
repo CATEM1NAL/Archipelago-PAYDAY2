@@ -1,6 +1,6 @@
 from CommonClient import CommonContext, ClientCommandProcessor, server_loop, get_base_parser, handle_url_arg, logger
 import Utils, asyncio, colorama, logging, json, os, math, time, random
-from . import PAYDAY2World
+from . import CrimDawnWorld
 from . import items
 from .item_types import itemType, itemData
 from collections.abc import Sequence
@@ -18,11 +18,11 @@ def load_json_file(fileName: str) -> dict:
     except Exception as e:
         return {}
 
-class PAYDAY2CommandProcessor(ClientCommandProcessor):
+class CrimDawnCommandProcessor(ClientCommandProcessor):
 
     def _score(self):
         """Displays your current score."""
-        if isinstance(self.ctx, PAYDAY2Context):
+        if isinstance(self.ctx, CrimDawnContext):
             logger.info(f"Current score: {1}")
 
 # scribble likes to write
@@ -134,22 +134,20 @@ class scrungle:
             except Exception as e:
                 print(e)
 
-class PAYDAY2Context(CommonContext):
+class CrimDawnContext(CommonContext):
     game = "PAYDAY 2: Criminal Dawn"
-    command_processor = PAYDAY2CommandProcessor
+    command_processor = CrimDawnCommandProcessor
     items_handling = 0b111
 
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
-        self.initialized = False
         self.score = 0
         self.scrungle_task = None
         self.deathLinkPending = False
-        self.timeBonusReceived = 0
 
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
-            await super(PAYDAY2Context, self).server_auth(password_requested)
+            await super(CrimDawnContext, self).server_auth(password_requested)
         await self.get_username()
         await self.send_connect()
 
@@ -164,16 +162,17 @@ class PAYDAY2Context(CommonContext):
                     self.on_deathlink(args["data"])
 
     def on_connected(self, args: dict):
-        version = PAYDAY2World.world_version.as_simple_string()
+        version = CrimDawnWorld.world_version.as_simple_string()
+        self.timeBonusReceived = 0
 
         # Error checking
         if version != args['slot_data']['server_version']:
             logger.info(f"WARNING: Server ({args['slot_data']['server_version']}) and client ({version}) are using different versions of the APWorld!")
 
-        self.path = os.path.dirname(PAYDAY2World.settings.payday2_path) + "/mods/saves/"
+        self.path = os.path.dirname(CrimDawnWorld.settings.payday2_path) + "/mods/saves/"
         self.scribble = scribble(self.path + "crimdawn_client.txt")
 
-        if not os.path.isfile(PAYDAY2World.settings.payday2_path):
+        if not os.path.isfile(CrimDawnWorld.settings.payday2_path):
             logger.error('ERROR: Scrungle no find payday2_win32_release.exe.\nScrungle kindly requests that you remove payday2_path from host.yaml')
             Utils.async_start(self.disconnect())
 
@@ -248,8 +247,13 @@ class PAYDAY2Context(CommonContext):
             self.scribble.run(item.name)
 
             if item.name == "Time Bonus":
+                print(f"{self.timeBonusReceived}: {self.scoreCaps}")
                 self.timeBonusReceived += 1
-                self.scribble.writeVariable("score_cap", self.scoreCaps[self.timeBonusReceived])
+                if self.timeBonusReceived < len(self.scoreCaps):
+                    self.scribble.writeVariable("score_cap", self.scoreCaps[self.timeBonusReceived])
+                    logger.info(f"Score cap increased to {self.scoreCaps[self.timeBonusReceived]}!")
+                else:
+                    self.scribble.writeVariable("score_cap", 5050)
 
     def getN(self, score):
         return math.floor((math.sqrt(1 + 8 * (score)) - 1) / 2)
@@ -325,21 +329,21 @@ class PAYDAY2Context(CommonContext):
     def run_gui(self):
         from kvui import GameManager
 
-        class PAYDAY2Manager(GameManager):
+        class CrimDawnManager(GameManager):
             logging_pairs = [
                 ("Client", "Archipelago")
             ]
             base_title = self.game + " Client"
 
-        self.ui = PAYDAY2Manager(self)
+        self.ui = CrimDawnManager(self)
         self.ui_task = asyncio.create_task(self.ui.async_run(), name="UI")
 
 def launch_client(*args: Sequence[str]):
-    Utils.init_logging('PAYDAY2Client')
+    Utils.init_logging('CrimDawnClient')
     logging.getLogger().setLevel(logging.INFO)
 
     async def main(args):
-        ctx = PAYDAY2Context(args.connect, args.password)
+        ctx = CrimDawnContext(args.connect, args.password)
         ctx.server_task = asyncio.create_task(server_loop(ctx), name='ServerLoop')
 
         if Utils.gui_enabled:

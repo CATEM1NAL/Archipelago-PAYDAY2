@@ -162,7 +162,7 @@ class DeathLink(Toggle):
 
 
 @dataclass
-class PAYDAY2Options(PerGameCommonOptions):
+class CrimDawnOptions(PerGameCommonOptions):
     progression_pacing: GamePace
     score_checks: ScoreLocations
     biglobby: BotCount
