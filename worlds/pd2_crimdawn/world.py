@@ -38,17 +38,11 @@ class CrimDawnWorld(World):
     origin_region_name = "Crime.net"
 
     def generate_early(self) -> None:
-        if self.options.progression_pacing == "quick":
-            self.timeBonusStrength = 20
-            self.maxTimeBonuses = self.random.randint(4, 5)
-
-        elif self.options.progression_pacing == "standard":
-            self.timeBonusStrength = 10
-            self.maxTimeBonuses = self.random.randint(7, 9)
-
-        elif self.options.progression_pacing == "glacial":
-            self.timeBonusStrength = 5
-            self.maxTimeBonuses = self.random.randint(15, 19)
+        self.maxTimeBonuses = round((self.options.run_length.value * 15) / self.options.progression_pacing.value) - 1
+        # run_length * 15 = 60 (4 heists) or 90 (6 heists)
+        # (minutes / pacing) - 1 = items needed to hit run_length
+        self.itemsForGoal = (self.options.run_length.value * 10) / self.options.progression_pacing.value - 1
+        print(self.maxTimeBonuses)
 
         if self.options.biglobby == 0: self.botCount = 3
         else: self.botCount = self.random.randint(4,21)
@@ -70,13 +64,14 @@ class CrimDawnWorld(World):
 
     def fill_slot_data(self) -> Mapping[str, Any]:
         args = self.options.as_dict(
+            "progression_pacing",
+            "run_length",
             "final_difficulty",
             "death_link"
         )
-        args["timer_strength"] = self.timeBonusStrength
         args["server_version"] = self.world_version.as_simple_string()
         args["seed_name"] = f"cd_{self.multiworld.seed_name}"
         args["score_caps"] = self.locationToScoreCap
-        args["scaling_count"] = ((60 - self.timeBonusStrength) / self.timeBonusStrength) + self.botCount + 16
+        args["diff_scale_count"] = ((10 * self.options.run_length.value - self.options.progression_pacing.value) / self.options.progression_pacing.value) + self.botCount + 16
 
         return args

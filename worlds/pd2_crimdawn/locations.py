@@ -36,24 +36,23 @@ def create_and_connect_regions(world: CrimDawnWorld) -> None:
     crimenet = world.get_region("Crime.net")
     safehouseT2 = world.get_region("Safe House Tier 2")
     safehouseT3 = world.get_region("Safe House Tier 3")
-    itemsForGoal = (60 - world.timeBonusStrength) / world.timeBonusStrength
 
-    for i in range(1, 7):
+    for i in range(1, world.options.run_length.value + 1):
         world.multiworld.regions.append(Region(f"Heist {i}", world.player, world.multiworld))
         heistRegion = world.get_region(f"Heist {i}")
         locName = f"Heist {i} Completed"
         locId = world.location_name_to_id[locName]
-        if i == 6: locId = None
+        if i == world.options.run_length.value: locId = None
         location = CrimDawnLocation(world.player, locName, locId, heistRegion)
         location.progress_type = LocationProgressType.PRIORITY
         heistRegion.locations.append(location)
-        itemsForConnection = round((i - 1) * (itemsForGoal / 5))
+        itemsForConnection = round((i - 1) * (world.itemsForGoal / world.options.run_length.value - 1))
 
         if i == 1: world.create_entrance(crimenet, heistRegion,None,"Start Run")
         else: world.create_entrance(world.get_region(f"Heist {i - 1}"), heistRegion, Has("Time Bonus", itemsForConnection), f"Heist {i - 1} Completed")
 
-    world.create_entrance(crimenet, safehouseT2, None, "276 Coins") #HasAllCounts({"24 Coins": 12, "Time Bonus": itemsForGoal // 3}),
-    world.create_entrance(safehouseT2, safehouseT3, None, "828 Coins") #HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * itemsForGoal // 3}),
+    world.create_entrance(crimenet, safehouseT2, None, "276 Coins") #HasAllCounts({"24 Coins": 12, "Time Bonus": world.itemsForGoal // 3}),
+    world.create_entrance(safehouseT2, safehouseT3, None, "828 Coins") #HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * world.itemsForGoal // 3}),
 
 def create_all_locations(world: CrimDawnWorld) -> None:
     create_score_locations(world)
@@ -84,36 +83,39 @@ def create_score_locations(world: CrimDawnWorld) -> None:
         location = CrimDawnLocation(world.player, locName, locId, region)
         region.locations.append(location)
 
-        itemsForGoal = (60 - world.timeBonusStrength) / world.timeBonusStrength
-        bots = i // (world.options.score_checks // world.botCount)
+        bots = (i // (world.options.score_checks // world.botCount)) - 1
 
         if i == 1:
             firstHeist.connect(region, "1 point")
 
         else:
-            if i < 4 * (world.options.score_checks / (itemsForGoal - 1)):
-                timeBonuses = round(i / (world.options.score_checks / (itemsForGoal - 1)))
+            if i < 4 * (world.options.score_checks / max(world.itemsForGoal - 1, 1)):
+                timeBonuses = round(i / (world.options.score_checks / max(world.itemsForGoal - 1, 1)))
                 requiredTimeBonuses.update({triangle(i): timeBonuses})
 
-            elif 4 * (world.options.score_checks / (itemsForGoal - 1)) <= i < world.options.score_checks:
-                timeBonuses =  round(i / (world.options.score_checks / (itemsForGoal - 1)))
-                #print(i // (world.options.score_checks // itemsForGoal - 1))
+            elif 4 * (world.options.score_checks / max(world.itemsForGoal - 1, 1)) <= i < world.options.score_checks:
+                timeBonuses =  round(i / (world.options.score_checks / max(world.itemsForGoal - 1, 1)))
+                #print(i // (world.options.score_checks // world.itemsForGoal - 1))
                 requiredTimeBonuses.update({triangle(i): timeBonuses})
 
             elif i == world.options.score_checks:
-                #timeBonuses = round(i / (world.options.score_checks / itemsForGoal))
-                timeBonuses = itemsForGoal
+                #timeBonuses = round(i / (world.options.score_checks / world.itemsForGoal))
+                timeBonuses = round(world.itemsForGoal)
                 requiredTimeBonuses.update({triangle(i): timeBonuses})
 
             else:
                 timeBonuses = 0
                 requiredTimeBonuses.update({triangle(i): 0})
 
-            #print(f"{location.name}: {timeBonuses}")
+            print(f"{location.name} ({world.player_name}):\n"
+                  f"  Time Bonuses: {timeBonuses}\n"
+                  f"  Extra Bot: {bots}\n"
+                  f"  Perma-Stuff: {i // (world.options.score_checks // world.options.run_length.value)}")
+
             locationRule = HasAllCounts({"Time Bonus": timeBonuses,
                                          "Extra Bot": bots,
-                                         "Perma-Perk": i // (world.options.score_checks // 8),
-                                         "Perma-Skill": i // (world.options.score_checks // 8)})
+                                         "Perma-Perk": i // (world.options.score_checks // world.options.run_length.value),
+                                         "Perma-Skill": i // (world.options.score_checks // world.options.run_length.value)})
 
             world.set_rule(location, locationRule)
 
@@ -132,11 +134,11 @@ def create_score_locations(world: CrimDawnWorld) -> None:
     world.locationToScoreCap.append(triangle(world.options.score_checks))
     #print(world.locationToScoreCap)
 
-    location = world.get_location("Heist 6 Completed")
-    locationRule = HasAllCounts({"Time Bonus": itemsForGoal,
+    location = world.get_location(f"Heist {world.options.run_length.value} Completed")
+    locationRule = HasAllCounts({"Time Bonus": world.itemsForGoal,
                                  "Extra Bot": world.botCount,
-                                 "Perma-Perk": 8,
-                                 "Perma-Skill": 8})
+                                 "Perma-Perk": 7,
+                                 "Perma-Skill": 7})
 
     world.set_rule(location, locationRule)
 

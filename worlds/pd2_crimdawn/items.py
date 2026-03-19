@@ -14,8 +14,8 @@ progressionItemDict: dict[int, itemData] = {
     2: itemData(IC.progression, 2, "Drill Sawgeant", itemType.progression),
     3: itemData(IC.progression, 3, "Extra Bot", itemType.progression),
     4: itemData(IC.progression, 2, "Nine Lives", itemType.progression),
-    5: itemData(IC.progression, 8, "Perma-Perk", itemType.progression),
-    6: itemData(IC.progression, 8, "Perma-Skill", itemType.progression)
+    5: itemData(IC.progression, 7, "Perma-Perk", itemType.progression),
+    6: itemData(IC.progression, 7, "Perma-Skill", itemType.progression)
 }
 
 trapItemDict: dict[int, itemData] = {

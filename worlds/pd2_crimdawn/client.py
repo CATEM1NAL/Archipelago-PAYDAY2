@@ -94,7 +94,7 @@ class scrungle:
                                     print(f"Heist {i} Completed")
                                     heist = LOCATION_NAME_TO_ID[f"Heist {i} Completed"]
                                     await self.context.check_locations([heist])
-                                if heistsWon > 5:
+                                if heistsWon > self.context.runLength - 1:
                                     await self.context.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
                                 prevHeistsWon = heistsWon
 
@@ -218,11 +218,13 @@ class CrimDawnContext(CommonContext):
         self.itemDict = items.itemDict
 
         self.scoreCaps = args['slot_data']["score_caps"]
-        self.timerStrength = args['slot_data']['timer_strength']
+        self.timerStrength = args['slot_data']['progression_pacing']
+        self.runLength = args['slot_data']['run_length']
         self.finalDifficulty = args['slot_data']['final_difficulty']
-        self.diffScale = args['slot_data']['scaling_count']
+        self.diffScale = args['slot_data']['diff_scale_count']
 
         self.scribble.writeVariable("timer_strength", self.timerStrength)
+        self.scribble.writeVariable("run_length", self.runLength)
         self.scribble.writeVariable("max_diff", self.finalDifficulty)
         self.scribble.writeVariable("score_cap", self.scoreCaps[self.timeBonusReceived])
         self.scribble.writeVariable("scaling_count", self.diffScale)

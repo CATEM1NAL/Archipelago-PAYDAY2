@@ -5,29 +5,43 @@ from Options import Choice, PerGameCommonOptions, Range, Toggle, OptionGroup
 
 class GamePace(Choice):
     """
-    Determines the speed at which the world will be played.
+    The speed at which the world can be played. Slower speeds are more likely to BK.
 
     QUICK: Start with 20 minutes, gain 20 with each time bonus.
-    4 or 5 time bonuses will generate, and you will have larger spheres.
-    A full playthrough can take around ?? hours with 100 score checks.
+    With default settings this can take around ?? hours to goal.
 
     STANDARD: Start with 10 minutes, gain 10 with each time bonus.
-    7 to 9 time bonuses will generate, and you will have decently sized spheres.
-    A full playthrough can take around ?? hours with 100 score checks.
+    With default settings this can take around 16 hours to goal.
 
     GLACIAL: Start with 5 minutes, gain 5 with each time bonus.
-    15 to 19 time bonuses will generate, and you will have smaller spheres.
-    Increasing the number of score checks to at least 150 is recommended.
-    A full playthrough can take around ?? hours with 150 score checks.
+    Increasing the number of score checks to at least 150 is recommended!
+    With 150 score checks and default settings this can take around ?? hours to goal.
     """
 
     display_name = "Progression Pacing"
 
-    option_quick = 0
-    option_standard = 1
-    option_glacial = 2
+    option_quick = 20
+    option_standard = 10
+    option_glacial = 5
 
     default = option_standard
+
+class RunLength(Choice):
+    """
+    How many heists you need to complete in a row to reach your goal.
+
+    SHORT: 4 heists per run, jumping straight to the bigger ones.
+    Makes spheres larger and decreases how long it takes to goal.
+
+    FULL: 6 heists per run, with the first two being smaller scale.
+    """
+
+    display_name = "Run Length"
+
+    option_short = 4
+    option_full = 6
+
+    default = option_full
 
 class ScoreLocations(Range):
     """
@@ -53,7 +67,7 @@ class BotCount(Toggle):
 class AdditionalSaw(Range):
     """
     How many OVE9000 saws are in the item pool.
-    Your first saw will randomly be a primary or secondary.
+    The first saw will randomly be a primary or secondary.
     """
 
     display_name = "Saws"
@@ -140,6 +154,12 @@ class ThrowableCount(Range):
 class MaxDiff(Choice):
     """
     The highest difficulty your run can reach.
+
+    This mod can get quite hard as you aren't guaranteed to have a good build,
+    and the total number of upgrades is less than you would normally have.
+
+    If you're unsure of what to set this to, I'd recommend trying the difficulty
+    below the highest you can comfortably play normally.
     """
 
     display_name = "Final Difficulty"
@@ -164,6 +184,7 @@ class DeathLink(Toggle):
 @dataclass
 class CrimDawnOptions(PerGameCommonOptions):
     progression_pacing: GamePace
+    run_length: RunLength
     score_checks: ScoreLocations
     biglobby: BotCount
     saws: AdditionalSaw
