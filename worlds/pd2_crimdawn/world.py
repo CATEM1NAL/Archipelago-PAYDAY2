@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from typing import Any, ClassVar
-import settings
+import settings, logging
 
 from worlds.AutoWorld import World, WebWorld
 
@@ -34,6 +34,7 @@ class CrimDawnWorld(World):
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
     locationToScoreCap = []
+    logger = logging.getLogger("Criminal Dawn")
 
     origin_region_name = "Crime.net"
 
@@ -42,7 +43,6 @@ class CrimDawnWorld(World):
         # run_length * 15 = 60 (4 heists) or 90 (6 heists)
         # (minutes / pacing) - 1 = items needed to hit run_length
         self.itemsForGoal = (self.options.run_length.value * 10) / self.options.progression_pacing.value - 1
-        print(self.maxTimeBonuses)
 
         if self.options.biglobby == 0: self.botCount = 3
         else: self.botCount = self.random.randint(4,21)

@@ -65,8 +65,7 @@ class scrungle:
                      "learned that crime doesn't pay.",
                      "watched dawn turn to dusk.",
                      "doesn't have a razor mind.",
-                     "got caught up in that Kataru business.",
-                     "was foiled at the hands of Commissioner Garrett."]
+                     "got caught up in that Kataru business."]
 
         print(f"Scrungle is watching {self.path}...")
 

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from Options import Choice, PerGameCommonOptions, Range, Toggle, OptionGroup
+from Options import Choice, PerGameCommonOptions, Range, Toggle, OptionGroup, DefaultOnToggle
 
 
 class GamePace(Choice):
     """
-    The speed at which the world can be played. Slower speeds are more likely to BK.
+    The speed at which the world can be played. Slower speeds are more likely to get stuck.
 
     QUICK: Start with 20 minutes, gain 20 with each time bonus.
     With default settings this can take around ?? hours to goal.
@@ -13,7 +13,7 @@ class GamePace(Choice):
     STANDARD: Start with 10 minutes, gain 10 with each time bonus.
     With default settings this can take around 16 hours to goal.
 
-    GLACIAL: Start with 5 minutes, gain 5 with each time bonus.
+    GLACIAL: Start with 5 minutes, gain 5 with each time bonus. Typically leads to more spheres.
     Increasing the number of score checks to at least 150 is recommended!
     With 150 score checks and default settings this can take around ?? hours to goal.
     """
@@ -25,6 +25,14 @@ class GamePace(Choice):
     option_glacial = 5
 
     default = option_standard
+
+class InfiniteTime(DefaultOnToggle):
+    """
+    Generate an additional time bonus at the final score check.
+    After obtaining every time bonus the PONR timer is disabled.
+    """
+
+    display_name = "Infinite Time"
 
 class RunLength(Choice):
     """
@@ -45,20 +53,20 @@ class RunLength(Choice):
 
 class ScoreLocations(Range):
     """
-    How many locations are locked behind score requirements.
+    How many checks are locked behind score requirements.
     """
 
     display_name = "Score Checks"
 
-    range_start = 100
-    range_end = 200
-    default = 100
+    range_start = 122
+    range_end = 366
+    default = 122
 
 class BotCount(Toggle):
     """
-    Whether BigLobby is installed.
-    Setting this to true increases the number of extra bots from 3
-    to a random number between 4 and 21, however the game may be less stable:
+    Whether BigLobby is installed. Recommended to increase score checks by about 20.
+    Enabling this increases the number of extra bots from 3 to a number between 4 and 21,
+    however the game may become less stable:
     https://modworkshop.net/mod/21582
     """
 
@@ -93,7 +101,8 @@ class NineLives(Range):
 
 class PrimaryCount(Range):
     """
-    How many primary weapons are guaranteed to generate in the multiworld.
+    The base number of primary weapons the multiworld will try to generate.
+    Actual number may be higher or lower depending on the number of locations available.
     18 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -105,7 +114,8 @@ class PrimaryCount(Range):
 
 class AkimboCount(Range):
     """
-    How many akimbos are guaranteed to generate in the multiworld.
+    The base number of akimbos the multiworld will try to generate.
+    Actual number may be higher or lower depending on the number of locations available.
     44 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -117,7 +127,8 @@ class AkimboCount(Range):
 
 class SecondaryCount(Range):
     """
-    How many secondary weapons are guaranteed to generate in the multiworld.
+    The base number of secondary weapons the multiworld will try to generate.
+    Actual number may be higher or lower depending on the number of locations available.
     23 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -129,7 +140,8 @@ class SecondaryCount(Range):
 
 class MeleeCount(Range):
     """
-    How many melee weapons are guaranteed to generate in the multiworld.
+    The base number of melee weapons the multiworld will try to generate.
+    Actual number may be higher or lower depending on the number of locations available.
     18 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -141,7 +153,8 @@ class MeleeCount(Range):
 
 class ThrowableCount(Range):
     """
-    How many throwables are guaranteed to generate in the multiworld.
+    The base number of throwables the multiworld will try to generate.
+    Actual number may be higher or lower depending on the number of locations available.
     5 is the most you can have without DLC - extra items will do nothing.
     """
 
@@ -185,6 +198,7 @@ class DeathLink(Toggle):
 class CrimDawnOptions(PerGameCommonOptions):
     progression_pacing: GamePace
     run_length: RunLength
+    infinite_time: InfiniteTime
     score_checks: ScoreLocations
     biglobby: BotCount
     saws: AdditionalSaw

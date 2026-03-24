@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 def triangle(n: int) -> int:
     return n * (n + 1) // 2
 
-maxScoreLocations = (200) + 1
-LOCATION_NAME_TO_ID = { f"{triangle(i)} Crime Points" : i for i in range(1, maxScoreLocations) }
+maxScoreLocations = (366) + 1
+LOCATION_NAME_TO_ID = { f"{triangle(i)} Points" : i for i in range(1, maxScoreLocations) }
 
 safehouseRooms = ["Scarface's Room", "Dallas' Office", "Hoxton's Files", "Clover's Surveillance Center",
                  "Duke's Gallery", "Houston's Workshop", "Sydney's Studio", "Rust's Corner", "Joy's Van",
@@ -74,7 +74,7 @@ def create_score_locations(world: CrimDawnWorld) -> None:
 
     requiredTimeBonuses = {}
     for i in range(1, world.options.score_checks+1):
-        locName = f"{triangle(i)} Crime Points"
+        locName = f"{triangle(i)} Points"
         locId = world.location_name_to_id[locName]
 
         region = Region(locName, world.player, world.multiworld)
@@ -99,18 +99,18 @@ def create_score_locations(world: CrimDawnWorld) -> None:
                 requiredTimeBonuses.update({triangle(i): timeBonuses})
 
             elif i == world.options.score_checks:
-                #timeBonuses = round(i / (world.options.score_checks / world.itemsForGoal))
                 timeBonuses = round(world.itemsForGoal)
                 requiredTimeBonuses.update({triangle(i): timeBonuses})
+                if world.options.infinite_time == 1: location.place_locked_item(world.create_item("Time Bonus"))
 
             else:
                 timeBonuses = 0
                 requiredTimeBonuses.update({triangle(i): 0})
 
-            print(f"{location.name} ({world.player_name}):\n"
-                  f"  Time Bonuses: {timeBonuses}\n"
-                  f"  Extra Bot: {bots}\n"
-                  f"  Perma-Stuff: {i // (world.options.score_checks // world.options.run_length.value)}")
+            #print(f"{location.name} ({world.player_name}):\n"
+            #      f"  Time Bonuses: {timeBonuses}\n"
+            #      f"  Extra Bot: {bots}\n"
+            #      f"  Perma-Stuff: {i // (world.options.score_checks // world.options.run_length.value)}")
 
             locationRule = HasAllCounts({"Time Bonus": timeBonuses,
                                          "Extra Bot": bots,
