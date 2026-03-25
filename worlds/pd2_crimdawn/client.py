@@ -2,7 +2,6 @@ from CommonClient import CommonContext, ClientCommandProcessor, server_loop, get
 import Utils, asyncio, colorama, logging, json, os, math, time, random
 from . import CrimDawnWorld
 from . import items
-from .item_types import itemType, itemData
 from collections.abc import Sequence
 from .locations import LOCATION_NAME_TO_ID
 
