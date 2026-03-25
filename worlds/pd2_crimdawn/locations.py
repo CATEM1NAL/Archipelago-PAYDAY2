@@ -38,27 +38,23 @@ def create_and_connect_regions(world: CrimDawnWorld) -> None:
     safehouseT2 = world.get_region("Safe House Tier 2")
     safehouseT3 = world.get_region("Safe House Tier 3")
 
-    for i in range(world.options.run_length.value):
-        world.multiworld.regions.append(Region(f"Heist {i+1}", world.player, world.multiworld))
-        heistRegion = world.get_region(f"Heist {i+1}")
-        locName = f"Heist {i+1} Completed"
+    for i in range(1, world.options.run_length.value + 1):
+        world.multiworld.regions.append(Region(f"Heist {i}", world.player, world.multiworld))
+        heistRegion = world.get_region(f"Heist {i}")
+        locName = f"Heist {i} Completed"
         locId = world.location_name_to_id[locName]
-        if i == world.options.run_length.value - 1: locId = None
+        if i == world.options.run_length.value: locId = None
         location = CrimDawnLocation(world.player, locName, locId, heistRegion)
         location.progress_type = LocationProgressType.PRIORITY
         heistRegion.locations.append(location)
 
-        if i == 1:
-            itemsForConnection = 0 #Make sure that heist 1 does not logically require any time items to complete
-        else:
-            itemsForConnection = math.floor(world.itemsForGoal / world.options.run_length.value * i)
+        itemsForConnection = math.floor(world.itemsForGoal / world.options.run_length.value * i)
 
-        if i == 0: #Connect Heist 1 to crimenet
+        if i == 1: #Connect Heist 1 to crimenet
             world.create_entrance(crimenet, heistRegion,None,"Start Run")
-            print(f"Start Run requires {itemsForConnection}")
         else: #Create Entrance connecting the heist region to the previous heist region
-            print(f"Heist {i} Completed requires {itemsForConnection}")
-            world.create_entrance(world.get_region(f"Heist {i}"), heistRegion, Has("Time Bonus", itemsForConnection), f"Heist {i} Completed")
+            print(f"Heist {i-1} Completed requires {itemsForConnection} Time Bonus")
+            world.create_entrance(world.get_region(f"Heist {i-1}"), heistRegion, Has("Time Bonus", itemsForConnection), f"Heist {i-1} Completed")
 
     world.create_entrance(crimenet, safehouseT2, None, "276 Coins") #HasAllCounts({"24 Coins": 12, "Time Bonus": world.itemsForGoal // 3}),
     world.create_entrance(safehouseT2, safehouseT3, None, "828 Coins") #HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * world.itemsForGoal // 3}),
