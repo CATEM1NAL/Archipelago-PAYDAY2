@@ -50,11 +50,11 @@ def create_and_connect_regions(world: CrimDawnWorld) -> None:
 
         itemsForConnection = math.floor(world.itemsForGoal / world.options.run_length.value * i)
 
-        if i == 1: #Connect Heist 1 to crimenet
+        if i == 1:
             world.create_entrance(crimenet, heistRegion,None,"Start Run")
         else: #Create Entrance connecting the heist region to the previous heist region
-            print(f"Heist {i-1} Completed requires {itemsForConnection} Time Bonus")
-            world.create_entrance(world.get_region(f"Heist {i-1}"), heistRegion, Has("Time Bonus", itemsForConnection), f"Heist {i-1} Completed")
+            #print(f"Heist {i-1} Completed requires {itemsForConnection} Time Bonus")
+            world.create_entrance(world.get_region(f"Heist {i-1}"), heistRegion, Has("Time Bonus", itemsForConnection), f"Heist {i} Requirements")
 
     world.create_entrance(crimenet, safehouseT2, None, "276 Coins") #HasAllCounts({"24 Coins": 12, "Time Bonus": world.itemsForGoal // 3}),
     world.create_entrance(safehouseT2, safehouseT3, None, "828 Coins") #HasAllCounts({"24 Coins": 35, "Time Bonus": 2 * world.itemsForGoal // 3}),
