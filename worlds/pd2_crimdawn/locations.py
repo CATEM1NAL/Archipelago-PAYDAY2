@@ -44,7 +44,7 @@ def createAllLocations(world: CrimDawnWorld) -> None:
 
 def createHeistCompletionLocations(world: CrimDawnWorld) -> None:
     crimenet = world.get_region("Crime.net")
-    timeToRunLength = [100, 6, 18, 25, 36, 44, 48]
+    timeToRunLength = [100, 12, 24, 30, 42, 48, 54]
     timePerUpgrade = timeToRunLength[world.runLength] / 60
 
     # Heist completion checks
