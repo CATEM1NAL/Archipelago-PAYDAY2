@@ -34,6 +34,8 @@ class Campaign(Choice):
     TEXAS HEAT: Midland Ranch (DLC), Hostile Takeover (DLC), Crude Awakening (DLC).
     FOLLOW THE MONEY: Bank Heist: Cash, GO Bank, Brooklyn Bank, San Martín Bank (DLC), First World Bank, Big Bank (DLC).
     GUN RUNNERS: Firestarter day 1, Aftershock, Brooklyn 10-10 (DLC), Bomb: Dockyard (DLC), Midland Ranch (DLC), Border Crossing (DLC).
+    NIGHT OF FRIGHTS: Cursed Kill Room, Prison Nightmare, Lab Rats, Safehouse Nightmare.
+    HOLIDAY SPECIAL: White Xmas, Santa's Workshop, Stealing Xmas.
     STEALTH MISSION: Breakin' Feds, Yacht Heist (DLC), Murky Station (licensed), Shadow Raid, Car Shop.
     """
 
@@ -51,6 +53,8 @@ class Campaign(Choice):
     option_texas_heat = 10
     option_follow_the_money = 11
     option_gun_runners = 12
+    option_night_of_frights = 98
+    option_holiday_special = 99
     option_stealth_mission = 100
 
     default = option_classics
