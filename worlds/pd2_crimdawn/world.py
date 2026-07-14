@@ -2,17 +2,23 @@ import math
 from collections.abc import Mapping
 from typing import Any, ClassVar
 import settings, logging
-from BaseClasses import ItemClassification as IC
-
+from BaseClasses import ItemClassification as IC, Tutorial
 from worlds.AutoWorld import World, WebWorld
 
 from . import items, locations
 from . import options as crimdawn_options
 
 class CrimDawnWebWorld(WebWorld):
-    game = "PAYDAY 2: Criminal Dawn"
-
     options_presets = crimdawn_options.presets
+    tutorials = [Tutorial(
+        "Multiworld Setup Guide",
+        "A guide to setting up the Payday 2 Crim Dawn on your computer."
+        "This guide covers single-player, multiworld, and related software.",
+        "English",
+        "setup_en.md",
+        "setup/en",
+        ["NOBODY"]
+    )]
 
 class CrimDawnSettings(settings.Group):
     class PAYDAY2Path(settings.LocalFilePath):
